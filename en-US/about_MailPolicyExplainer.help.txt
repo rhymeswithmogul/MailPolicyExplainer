@@ -103,6 +103,10 @@ Privacy
     support for using other public DNS APIs, or switching to proper
     DNS-over-HTTPS so that user-provided servers can be used.
 
+    To troubleshoot DNS lookups, a cmdlet, Invoke-GooglePublicDnsApi, is made
+    available.  However, it is not intended for public use, and is subject to
+    change or removal at any time.
+
     While the domain owner has no way to know which DNS lookups you and this
     module are doing, note that the MTA-STS does connect to the company's web
     server in order to retrieve the MTA-STS policy file.  A single HTTP GET

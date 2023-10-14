@@ -1,6 +1,8 @@
 # MailPolicyExplainer
 ## about_MailPolicyExplainer
 
+![Unofficial logo: email with an info icon](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/icon/icon.svg)
+
 # SHORT DESCRIPTION
 A PowerShell module to fetch and analyze a domain's mail-related DNS records.
 
@@ -61,6 +63,8 @@ Some of these limitations (such as testing DANE records) may be addressed in fut
 As the built-in `Resolve-DnsName` cmdlet doesn't do everything that we need it to do (and because it's conspicuously absent on non-Windows versions of PowerShell), these cmdlets need to rely on an outside DNS resolving service.  After testing some options, the only reliable cross-platform option was to use [Google's Public DNS API](https://developers.google.com/speed/public-dns/docs/doh/json).  MailPolicyExplainer uses the PowerShell runtime to make queries in a similar fashion to DNS-over-HTTPS (DoH).  DNSSEC is always attempted, but left for the resolver to verify.
 
 Some people may have privacy concerns about sending random DNS queries to Google.  Until Microsoft ports their DnsClient module to other platforms, and ensures that it can look up any type of DNS record, we are stuck using a third-party resource.  However, future versions of this module may introduce support for using other public DNS APIs, or switching to proper DNS-over-HTTPS so that user-provided servers can be used.
+
+To troubleshoot DNS lookups, a cmdlet `Invoke-GooglePublicDnsApi` is made available.  However, it is not intended for public use, and is subject to change or removal at any time.
 
 While the domain owner has no way to know which DNS lookups you and this module are doing, note that the MTA-STS does connect to the company's web server in order to retrieve the MTA-STS policy file.  A single HTTP GET request will be made from your current IP address to the well-known location https://mta-sts.contoso.com/.well-known/mta-sts.txt (assuming you're testing against contoso.com).
 
