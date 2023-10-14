@@ -1,0 +1,1301 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<helpItems schema="maml" xmlns="http://msh">
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+    <command:details>
+      <command:name>Invoke-GooglePublicDnsApi</command:name>
+      <command:verb>Invoke</command:verb>
+      <command:noun>GooglePublicDnsApi</command:noun>
+      <maml:description>
+        <maml:para>Performs a DNS lookup against the Google Public DNS API.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>This cmdlet will perform a DNS lookup using the Google Public DNS API.  Data is submitted automatically via something like DNS-over-HTTPS (DoH), and DNSSEC-validated responses are returned and decoded into a native PowerShell object.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Invoke-GooglePublicDnsApi</maml:name>
+        <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+          <maml:name>InputObject</maml:name>
+          <maml:description>
+            <maml:para>The fully-qualified domain name that will be looked up.  You do not need to specify a trailing period.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="1" aliases="none">
+          <maml:name>Type</maml:name>
+          <maml:description>
+            <maml:para>The resource record type to look up.  Currently, only types required by MailPolicyExplainer are supported, as this is only visible to end users to assist with debugging of this module under varying network conditions.</maml:para>
+          </maml:description>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" command:variableLength="false">A</command:parameterValue>
+            <command:parameterValue required="false" command:variableLength="false">AAAA</command:parameterValue>
+            <command:parameterValue required="false" command:variableLength="false">CNAME</command:parameterValue>
+            <command:parameterValue required="false" command:variableLength="false">MX</command:parameterValue>
+            <command:parameterValue required="false" command:variableLength="false">SPF</command:parameterValue>
+            <command:parameterValue required="false" command:variableLength="false">TLSA</command:parameterValue>
+            <command:parameterValue required="false" command:variableLength="false">TXT</command:parameterValue>
+          </command:parameterValueGroup>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+        <maml:name>InputObject</maml:name>
+        <maml:description>
+          <maml:para>The fully-qualified domain name that will be looked up.  You do not need to specify a trailing period.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="1" aliases="none">
+        <maml:name>Type</maml:name>
+        <maml:description>
+          <maml:para>The resource record type to look up.  Currently, only types required by MailPolicyExplainer are supported, as this is only visible to end users to assist with debugging of this module under varying network conditions.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>None</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>This cmdlet does not accept pipeline input.</maml:para>
+        </maml:description>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>A PSObject is returned containing the JSON-decoded response from Google Public DNS.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para>This cmdlet intended to be used to debug the module operation, and should not be used by end users.  DNSSEC is mandatory but checked only by the resolver, and only a subset of resource records are supported.  This cmdlet is subject to change and may be modified, removed, or replaced at any time.</maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>-------------------------- Example 1 --------------------------</maml:title>
+        <dev:code>PS C:\&gt; Invoke-GooglePublicDnsApi "_dmarc.contoso.com" -Type "TXT"</dev:code>
+        <dev:remarks>
+          <maml:para>Fetches the DNSSEC-validated DMARC record for contoso.com.</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version:</maml:linkText>
+        <maml:uri>https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/Invoke-GooglePublicDnsApi.md</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Resolve-DnsName</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>JSON API for DoH</maml:linkText>
+        <maml:uri>https://developers.google.com/speed/public-dns/docs/doh/json</maml:uri>
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+    <command:details>
+      <command:name>Test-AdspRecord</command:name>
+      <command:verb>Test</command:verb>
+      <command:noun>AdspRecord</command:noun>
+      <maml:description>
+        <maml:para>Tests a domain's DKIM Author Domain Signing Practices record.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>This cmdlet will test a domain's DKIM Author Domain Signing Practices record.</maml:para>
+      <maml:para>ADSP records describe outbound DKIM signing practices, and whether or not outgoing emails are expected to have DKIM Author Domain Signatures (that is, where the signature email or domain is the same as the sender's email or domain).  Stored as the DNS TXT record "_adsp._domainkey", this can be set to one of three values:</maml:para>
+      <maml:para>1. "dkim=unknown" says that the domain might sign some or all email. 2. "dkim=all" says that all mail from the domain contains an Author Domain Signature. 3. "dkim=discardable" says that all mail from the domain contains an Author Domain Signature, and unsigned or incorrectly-signed messages may be discarded by the receiving server.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Test-AdspRecord</maml:name>
+        <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+          <maml:name>DomainName</maml:name>
+          <maml:description>
+            <maml:para>The domain name to test.  Be sure to include any applicable subdomains (i.e., "contoso.com" and "newsletters.contoso.com" are two different domains).</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+        <maml:name>DomainName</maml:name>
+        <maml:description>
+          <maml:para>The domain name to test.  Be sure to include any applicable subdomains (i.e., "contoso.com" and "newsletters.contoso.com" are two different domains).</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>None</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>This cmdlet does not accept pipeline input.</maml:para>
+        </maml:description>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>System.Void</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>This cmdlet does not generate pipeline output.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para>DKIM ADSP was finalized in 2009, but it never saw much use.  Due to its lack of popularity, it was declared "historic" by the IETF only four years later.  Thus, its use is discouraged;  it is perfectly acceptable, normal, and expected not to see domains with defined ADS policies.</maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>-------------------------- Example 1 --------------------------</maml:title>
+        <dev:code>PS C:\&gt; Test-AdspRecord contoso.com</dev:code>
+        <dev:remarks>
+          <maml:para>Tests the DNS TXT record "_adsp._domainkey.contoso.com".</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version:</maml:linkText>
+        <maml:uri>https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/Test-AdspRecord.md</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>about_DKIMADSP</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Test-DkimSelector</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+    <command:details>
+      <command:name>Test-BimiSelector</command:name>
+      <command:verb>Test</command:verb>
+      <command:noun>BimiSelector</command:noun>
+      <maml:description>
+        <maml:para>Tests a domain's BIMI selector for correctness.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>This cmdlet wlil look up one of a domain's BIMI selectors and test it for correctness.</maml:para>
+      <maml:para>Brand Indicators for Message Identification (BIMI) is a draft standard used to allow mail user agents (MUAs) to display company logos and other brands next to properly-identified emails.</maml:para>
+      <maml:para>There are three requirements for BIMI to function, even if the DNS record for the BIMI selector is syntactically correct: 1. The email must be properly signed with DKIM. 2. The email must be DMARC-aligned. 3. The domain's DMARC policy must be "quarantine" or "reject". 4. The BIMI record must link to a valid SVG file accessible over HTTPS.</maml:para>
+      <maml:para>Additionally, the BIMI record should contain a link to an assertion that's signed by a trusted certificate authority.  This is not a requirement by the BIMI specification, but many MUAs will not show the image unless it is verifiable.</maml:para>
+      <maml:para>BIMI records contain two tags, "l" linking to a valid SVG image, and "a" linking to an assertion file.  Alternatively, "l" and "a" may have null values to indicate that a domain has opted out of BIMI.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Test-BimiSelector</maml:name>
+        <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+          <maml:name>DomainName</maml:name>
+          <maml:description>
+            <maml:para>The domain name whose BIMI selector you wish to test.  Be sure to include any applicable subdomains (i.e., "contoso.com" and "newsletters.contoso.com" are two different domains).</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="1" aliases="Selector, SelectorName">
+          <maml:name>Name</maml:name>
+          <maml:description>
+            <maml:para>The BIMI selector to analyze.  If not specified, the default of "default" will be used.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>"default"</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+        <maml:name>DomainName</maml:name>
+        <maml:description>
+          <maml:para>The domain name whose BIMI selector you wish to test.  Be sure to include any applicable subdomains (i.e., "contoso.com" and "newsletters.contoso.com" are two different domains).</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="1" aliases="Selector, SelectorName">
+        <maml:name>Name</maml:name>
+        <maml:description>
+          <maml:para>The BIMI selector to analyze.  If not specified, the default of "default" will be used.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>"default"</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>None</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>This cmdlet does not accept pipeline input.</maml:para>
+        </maml:description>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>System.Void</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>This cmdlet does not generate pipeline output.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para>MailPolicyExplainer can only check DKIM, DMARC, and BIMI DNS records for correctness.  There are many other requirements that this module cannot check, such as:  - If outgoing emails are properly signed.  - If outgoing emails contain the appropriate BIMI headers.  - If the SVG file can be downloaded.  - If the SVG file is valid.  - If the assertion can be downloaded.  - If the assertion is trusted by the recipient's MUA.</maml:para>
+        <maml:para>Note that while BIMI is in use, the specification is still under development, and has not yet been finalized and approved by the IETF.  This cmdlet complies with draft-brand-indicators-for-message-identification-04.</maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>-------------------------- Example 1 --------------------------</maml:title>
+        <dev:code>PS C:\&gt; Test-BimiSelector "contoso.com"</dev:code>
+        <dev:remarks>
+          <maml:para>Tests the BIMI selector named "default" present for contoso.com.  The DNS TXT record to be looked up is "default._bimi.contoso.com".</maml:para>
+          <maml:para>As "default" is the default value, the output of this cmdlet would not change if `-Name "default"` were added.</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>-------------------------- Example 2 --------------------------</maml:title>
+        <dev:code>PS C:\&gt; Test-BimiSelector "contoso.com" -Name "tailspintoys"</dev:code>
+        <dev:remarks>
+          <maml:para>Tests the BIMI selector named "tailspintoys" present for contoso.com.  The DNS TXT record to be looked up is "tailspintoys._bimi.contoso.com".</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version:</maml:linkText>
+        <maml:uri>https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/Test-BimiSelector.md</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>about_BIMI</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Test-DkimSelector</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Test-DmarcRecord</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>BIMI Working Group</maml:linkText>
+        <maml:uri>https://datatracker.ietf.org/doc/draft-brand-indicators-for-message-identification/</maml:uri>
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+    <command:details>
+      <command:name>Test-DaneRecords</command:name>
+      <command:verb>Test</command:verb>
+      <command:noun>DaneRecords</command:noun>
+      <maml:description>
+        <maml:para>This cmdlet tests DANE records for correctness.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>This cmdlet will test the DANE records of a domain's MX servers for correctness.</maml:para>
+      <maml:para>DNS-based Authentication of Named Entities (DANE) is a method used to verify the identity of a remote server.  By publishing the server's TLS certificate information in DNS, clients connecting to the remote server can use those TLS authentication (TLSA) records to confirm they have connected to the correct server, making downgrade and man-in-the-middle attacks impossible.  This can replace the traditional TLS certificate validation procedures, or work in tandem with them.</maml:para>
+      <maml:para>As DNS lookups are not encrypted, DANE will not function unless the DNS zone is signed with DNSSEC.</maml:para>
+      <maml:para>This cmdlet will verify that a remote server's TLSA records are of the acceptable types for SMTP, either DANE-TX (2) or DANE-EE (3).  It will also verify that the zone is signed with DNSSEC.</maml:para>
+      <maml:para>Note that this cmdlet can only check for the existence, security, and correctness of DNS TLSA records.  It does not connect to the servers to verify that the TLSA records are actually valid.</maml:para>
+      <maml:para>DANE was defined in RFC 6698 and updated by RFC 7218, RFC 7671, and RFC 8749.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Test-DaneRecords</maml:name>
+        <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+          <maml:name>DomainName</maml:name>
+          <maml:description>
+            <maml:para>The domain name to test.  Be sure to include any applicable subdomains (i.e., "contoso.com" and "newsletters.contoso.com" are two different domains).</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+        <maml:name>DomainName</maml:name>
+        <maml:description>
+          <maml:para>The domain name to test.  Be sure to include any applicable subdomains (i.e., "contoso.com" and "newsletters.contoso.com" are two different domains).</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>None</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>This cmdlet does not accept pipeline input.</maml:para>
+        </maml:description>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>System.Void</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>This cmdlet does not generate pipeline output.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para>This cmdlet does not attempt to connect to the server and test that the DANE records are valid.  It only tests them for correctness.</maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>-------------------------- Example 1 --------------------------</maml:title>
+        <dev:code>PS C:\&gt; Test-DaneRecords contoso.com</dev:code>
+        <dev:remarks>
+          <maml:para>This will look up the DANE records for each of contoso.com's MX servers.</maml:para>
+          <maml:para>For example, if contoso.com has MX records for "mail.contoso.com" and "email.fabrikam.com", then the DNS TLSA records for "_25._tcp.mail.contoso.com" and "_25._tcp.email.fabrikam.com" will be tested.</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>-------------------------- Example 1 --------------------------</maml:title>
+        <dev:code>PS C:\&gt; Test-DaneRecords woodgrovebank.com</dev:code>
+        <dev:remarks>
+          <maml:para>This will look up the DANE records for each of woodgrovebank.com's MX servers.</maml:para>
+          <maml:para>For example, if woodgrovebank.com uses Exchange Online, this cmdlet may look up and test a TLSA record called "_25._tcp.woodgrovebank-com.1a2b.mx.microsoft".</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version:</maml:linkText>
+        <maml:uri>https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/Test-DaneRecords.md</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Test-MxRecords</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>about_DANERecords</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>about_DANERecordsAcronyms</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>about_DANERecordsUsage</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+    <command:details>
+      <command:name>Test-DkimSelector</command:name>
+      <command:verb>Test</command:verb>
+      <command:noun>DkimSelector</command:noun>
+      <maml:description>
+        <maml:para>Tests a DKIM selector for correctness and best practices.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>This cmdlet will test a domain's DKIM selector for correctness and to ensure that it follows best practices.</maml:para>
+      <maml:para>DKIM (DomainKeys Identified Mail) is a method of applying a digital signature to an email to prove that a message came from a certain domain.  The message body and some headers are hashed, and that hash is signed by a keypair.  A receiving mail server will fetch the public key from DNS and use that to verify the hash.</maml:para>
+      <maml:para>There can be many DKIM keys ("selectors") for a domain, so you must specify which one you want to check.</maml:para>
+      <maml:para>DKIM selectors can use RSA or Ed25519 keys.  Ed25519 keys are always 256-bit;  acceptable RSA keys range from 1024 to at least 4096 bits.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Test-DkimSelector</maml:name>
+        <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+          <maml:name>DomainName</maml:name>
+          <maml:description>
+            <maml:para>The domain name to test.  Be sure to include any applicable subdomains (i.e., "contoso.com" and "newsletters.contoso.com" are two different domains).</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="1" aliases="Selector, SelectorName, KeyName">
+          <maml:name>Name</maml:name>
+          <maml:description>
+            <maml:para>The name of the DKIM selector to test.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+        <maml:name>DomainName</maml:name>
+        <maml:description>
+          <maml:para>The domain name to test.  Be sure to include any applicable subdomains (i.e., "contoso.com" and "newsletters.contoso.com" are two different domains).</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="1" aliases="Selector, SelectorName, KeyName">
+        <maml:name>Name</maml:name>
+        <maml:description>
+          <maml:para>The name of the DKIM selector to test.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>None</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>This cmdlet does not accept pipeline input.</maml:para>
+        </maml:description>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>System.Void</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>This cmdlet does not generate pipeline output.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para>This cmdlet will only verify that the DKIM DNS record is syntactically correct and up to best practices.  This cmdlet cannot check to make sure that outgoing mail is being properly signed by an MTA or milter.</maml:para>
+        <maml:para>DKIM is defined in RFC 6376, with updates in RFC 8301, RFC 8463, and RFC 8616.</maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>-------------------------- Example 1 --------------------------</maml:title>
+        <dev:code>PS C:\&gt; Test-DkimSelector -DomainName contoso.com -SelectorName selector1</dev:code>
+        <dev:remarks>
+          <maml:para>Tests contoso.com's DKIM selector named "selector1".  The DNS TXT record to be resolved will be "selector1._domainkey.contoso.com."</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>-------------------------- Example 2 --------------------------</maml:title>
+        <dev:code>PS C:\&gt; Test-DkimSelector shop.fabrikam.com receipts</dev:code>
+        <dev:remarks>
+          <maml:para>Tests shop.fabrikam.com's DKIM selector named "receipts".  The DNS TXT record to be resolved will be "receipts._domainkey.shop.fabrikam.com."</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version:</maml:linkText>
+        <maml:uri>https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/Test-DkimSelector.md</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Test-DkimAdspRecord</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>about_DKIM</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>about_DKIMRSAKeyUpdates</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>about_DKIMEd25519</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+    <command:details>
+      <command:name>Test-DmarcRecord</command:name>
+      <command:verb>Test</command:verb>
+      <command:noun>DmarcRecord</command:noun>
+      <maml:description>
+        <maml:para>Tests a domain's DMARC record.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>This cmdlet will test a domain's DMARC record for correctness.</maml:para>
+      <maml:para>DMARC (Domain-based Message Authentication, Reporting, and Conformance) is a DNS TXT record that allows domain owners to set policies and preferences for email validation and reporting.</maml:para>
+      <maml:para>DMARC relies on both SPF and DKIM to determine if a message is legitimate ("aligned").  The DMARC policy can also instruct other mail servers to quarantine or reject emails that fail SPF and DKIM.  It can also instruct recipients' mail servers to respond with delivery information that can be used to generate reports for mail server operators to analyze email flow and deliverability.</maml:para>
+      <maml:para>A strict DMARC policy is also a requirement for BIMI.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Test-DmarcRecord</maml:name>
+        <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+          <maml:name>DomainName</maml:name>
+          <maml:description>
+            <maml:para>The domain name to test.  Be sure to include any applicable subdomains (i.e., "contoso.com" and "newsletters.contoso.com" are two different domains).</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+        <maml:name>DomainName</maml:name>
+        <maml:description>
+          <maml:para>The domain name to test.  Be sure to include any applicable subdomains (i.e., "contoso.com" and "newsletters.contoso.com" are two different domains).</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>None</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>This cmdlet does not accept pipeline input.</maml:para>
+        </maml:description>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>System.Void</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>This cmdlet does not generate pipeline output.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para>If a subdomain does not have a DMARC policy, it will inherit the DMARC policy from its parent domain.</maml:para>
+        <maml:para>DMARC is defined in RFC 7489.</maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>-------------------------- Example 1 --------------------------</maml:title>
+        <dev:code>PS C:\&gt; Test-DmarcRecord contoso.com</dev:code>
+        <dev:remarks>
+          <maml:para>Tests the DMARC record for contoso.com.  The DNS TXT record to be resolved is "_dmarc.contoso.com."</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version:</maml:linkText>
+        <maml:uri>https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/Test-DmarcRecord.md</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Test-SpfRecord</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Test-DkimSelector</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Test-BimiSelector</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>about_DMARC</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+    <command:details>
+      <command:name>Test-MailPolicy</command:name>
+      <command:verb>Test</command:verb>
+      <command:noun>MailPolicy</command:noun>
+      <maml:description>
+        <maml:para>Tests all email-related DNS records for a domain.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>This cmdlet will check all of a domain's email-related DNS records, including MX, DANE, SPF, DMARC, MTA-STS, and SMTP TLS reporting policies.  It can also check DKIM and BIMI selectors, if specified.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Test-MailPolicy</maml:name>
+        <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+          <maml:name>DomainName</maml:name>
+          <maml:description>
+            <maml:para>The domain name to test.  Be sure to include any applicable subdomains (i.e., "contoso.com" and "newsletters.contoso.com" are two different domains).</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>BimiSelectorsToCheck</maml:name>
+          <maml:description>
+            <maml:para>The names of one or more DKIM selectors.  If omitted, no DKIM checks will be done.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String[]</command:parameterValue>
+          <dev:type>
+            <maml:name>String[]</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>DkimSelectorsToCheck</maml:name>
+          <maml:description>
+            <maml:para>The names of one or more BIMI selectors.  If omitted, no BIMI checks will be done.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String[]</command:parameterValue>
+          <dev:type>
+            <maml:name>String[]</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>BimiSelectorsToCheck</maml:name>
+        <maml:description>
+          <maml:para>The names of one or more DKIM selectors.  If omitted, no DKIM checks will be done.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String[]</command:parameterValue>
+        <dev:type>
+          <maml:name>String[]</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>DkimSelectorsToCheck</maml:name>
+        <maml:description>
+          <maml:para>The names of one or more BIMI selectors.  If omitted, no BIMI checks will be done.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String[]</command:parameterValue>
+        <dev:type>
+          <maml:name>String[]</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+        <maml:name>DomainName</maml:name>
+        <maml:description>
+          <maml:para>The domain name to test.  Be sure to include any applicable subdomains (i.e., "contoso.com" and "newsletters.contoso.com" are two different domains).</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>None</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>This cmdlet does not accept pipeline input.</maml:para>
+        </maml:description>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>System.Void</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>This cmdlet does not generate pipeline output.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para>This cmdlet (and the others in this module) will test for DNSSEC.  While it is not a requirement (except for DANE), its use is strongly recommended.</maml:para>
+        <maml:para>If you do not want to run all of these tests, there are cmdlets for each individual test, too.</maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>-------------------------- Example 1 --------------------------</maml:title>
+        <dev:code>PS C:\&gt; Test-MailPolicy contoso.com</dev:code>
+        <dev:remarks>
+          <maml:para>Checks the MX records and their associated DANE records, SPF record, DMARC record, MTA-STS record and policy file, and SMTP TLS reporting policy.</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>-------------------------- Example 2 --------------------------</maml:title>
+        <dev:code>PS C:\&gt; Test-MailPolicy fabrikam.com -DkimSelectorsToCheck "selector1","selector2"</dev:code>
+        <dev:remarks>
+          <maml:para>This will do everything the previous example does, but also check the DKIM selectors named "selector1" and "selector2".  (These are the names of the two Exhcange Online selectors.)</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>-------------------------- Example 3 --------------------------</maml:title>
+        <dev:code>PS C:\&gt; Test-MailPolicy tailspintoys.com -DkimSelectorsToCheck "marketing" -BimiSelectorsToCheck "default"</dev:code>
+        <dev:remarks>
+          <maml:para>This will do everything the first exmaple does, but also check the DKIM selector "marketing" and the BIMI selector "default".</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version:</maml:linkText>
+        <maml:uri>https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/Test-MailPolicy.md</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Test-AdspRecord</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Test-BimiSelector</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Test-DaneRecords</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Test-DkimSelector</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Test-DmarcRecord</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Test-MtaStsPolicy</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Test-MXRecords</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Test-SmtpTlsReportingPolicy.md</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Test-SpfRecord</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>about_MailPolicyExplainer</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>about_SMTP</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+    <command:details>
+      <command:name>Test-MtaStsPolicy</command:name>
+      <command:verb>Test</command:verb>
+      <command:noun>MtaStsPolicy</command:noun>
+      <maml:description>
+        <maml:para>Fetches and checks a domain's MTA-STS record and policy.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>This cmdlet will test a domain's MTA-STS policy record, attempt to download the MTA-STS policy file, and test that, too.</maml:para>
+      <maml:para>Mail Transport Agent Strict Transport Security is a method for mail server operators to advertise that their mail servers support STARTTLS in a way that is immune to downgrade or man-in-the-middle attacks.  This requires a DNS record, and a text file in a specific spot on a web server.</maml:para>
+      <maml:para>When MTA-STS is enabled, the policy file must be available via HTTPS on a web server that supports TLS 1.2 or newer.  When MTA-STS checks pass, the sending mail server must use STARTTLS (with TLS 1.2 or higher) and see a matching and otherwise-valid certificate offered by the email server.  If anything goes wrong, delivery must be delayed (assuming the MTA-STS policy is set to "enforce") and an SMTP TLS failure report must be sent.</maml:para>
+      <maml:para>MTA-STS was invented as a substitute for the much-simpler DANE, as DANE requires DNSSEC while MTA-STS does not.  However, both can coexist.</maml:para>
+      <maml:para>There is a companion technology, SMTP TLS Reporting.  While it is not a requirement to use MTA-STS, its use is highly encouraged so that you can receive MTA-STS and STARTTLS failure reports.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Test-MtaStsPolicy</maml:name>
+        <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+          <maml:name>DomainName</maml:name>
+          <maml:description>
+            <maml:para>The domain name to test.  Be sure to include any applicable subdomains (i.e., "contoso.com" and "newsletters.contoso.com" are two different domains).</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+        <maml:name>DomainName</maml:name>
+        <maml:description>
+          <maml:para>The domain name to test.  Be sure to include any applicable subdomains (i.e., "contoso.com" and "newsletters.contoso.com" are two different domains).</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>None</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>This cmdlet does not accept pipeline input.</maml:para>
+        </maml:description>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>System.Void</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>This cmdlet does not generate pipeline output.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para>MTA-STS is defined in RFC 8461.</maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>-------------------------- Example 1 --------------------------</maml:title>
+        <dev:code>PS C:\&gt; Test-MtaStsPolicy contoso.com</dev:code>
+        <dev:remarks>
+          <maml:para>This will evaluate the MTA-STS policy for contoso.com.  It will look up the DNS TXT record "_mta-sts.contoso.com."  It will then try to download the file "https://mta-sts.contoso.com/.well-known/mta-sts.txt" using TLS 1.2 or higher, and parse the file.</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version:</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Test-SmtpTlsReportingPolicy</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>about_MTA-STS</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>about_SMTPTLSReporting</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+    <command:details>
+      <command:name>Test-MXRecords</command:name>
+      <command:verb>Test</command:verb>
+      <command:noun>MXRecords</command:noun>
+      <maml:description>
+        <maml:para>Tests a domain's MX records.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>This cmdlet will check the MX records for a domain.  MX records define which servers receive a domain's email, and in which order they should be tried.</maml:para>
+      <maml:para>A lack of MX records does not imply that the domain does not receive email!  If there are no MX records, then the root A and AAAA records will be used for mail delivery.   To indicate that a domain does not receive (or send) email, a null MX record should be used (server = ".", priority 0).</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Test-MXRecords</maml:name>
+        <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+          <maml:name>DomainName</maml:name>
+          <maml:description>
+            <maml:para>The domain name to test.  Be sure to include any applicable subdomains (i.e., "contoso.com" and "newsletters.contoso.com" are two different domains).</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+        <maml:name>DomainName</maml:name>
+        <maml:description>
+          <maml:para>The domain name to test.  Be sure to include any applicable subdomains (i.e., "contoso.com" and "newsletters.contoso.com" are two different domains).</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>None</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>This cmdlet does not accept pipeline input.</maml:para>
+        </maml:description>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>System.Void</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>This cmdlet does not generate pipeline output.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para>MX records were defined way back in RFC 974, with updates in RFC 5321.  Null MX records are defined in RFC 7505.</maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>-------------------------- Example 1 --------------------------</maml:title>
+        <dev:code>PS C:\&gt; Test-MXRecords contoso.com</dev:code>
+        <dev:remarks>
+          <maml:para>Tests the DNS MX records (if they exist) for "contoso.com."</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version:</maml:linkText>
+        <maml:uri>https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/Test-MXRecords.md</maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>about_MXRecords</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>about_NullMXRecords</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>about_SMTP</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+    <command:details>
+      <command:name>Test-SmtpTlsReportingPolicy</command:name>
+      <command:verb>Test</command:verb>
+      <command:noun>SmtpTlsReportingPolicy</command:noun>
+      <maml:description>
+        <maml:para>Tests a domain's SMTP TLS reporting policy.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>This cmdlet will test a domain's SMTP TLS reporting policy.  This is a mechanism by which server operators can receive alerts should inbound connections fail, whetner due to a failure of DANE or MTA-STS, or any other issue with STARTTLS.</maml:para>
+      <maml:para>SMTP TLS reporting is not a requirement to use DANE or MTA-STS, but it is highly recommended to be implemented.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Test-SmtpTlsReportingPolicy</maml:name>
+        <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+          <maml:name>DomainName</maml:name>
+          <maml:description>
+            <maml:para>The domain name to test.  Be sure to include any applicable subdomains (i.e., "contoso.com" and "newsletters.contoso.com" are two different domains).</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+        <maml:name>DomainName</maml:name>
+        <maml:description>
+          <maml:para>The domain name to test.  Be sure to include any applicable subdomains (i.e., "contoso.com" and "newsletters.contoso.com" are two different domains).</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>None</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>This cmdlet does not accept pipeline input.</maml:para>
+        </maml:description>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>System.Void</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>This cmdlet does not generate pipeline output.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para>SMTP TLS Reporting is defined in RFC 8460.</maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>-------------------------- Example 1 --------------------------</maml:title>
+        <dev:code>PS C:\&gt; Test-SmtpTlsreportingPolicy contoso.com</dev:code>
+        <dev:remarks>
+          <maml:para>Tests the SMTP TLS reporting policy for contoso.com.  This resolves the DNS TXT reocrd "_smtp._tls.contoso.com."</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version:</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Test-MtaStsPolicy</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Test-DaneRecords</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>about_SMTPTLSReporting</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+    <command:details>
+      <command:name>Test-SpfRecord</command:name>
+      <command:verb>Test</command:verb>
+      <command:noun>SpfRecord</command:noun>
+      <maml:description>
+        <maml:para>Tests and explains a domain's SPF record.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>This cmdlet tests and evaluates a domain's SPF record.</maml:para>
+      <maml:para>Sender Policy Framework (RFC 7208) is a DNS TXT record at the root of a DNS zone that lets a domain define its legitimate sources of email.  It can contain IP addresses, domain names, or even other SPF records.</maml:para>
+      <maml:para>SPF provides a complementary authentication to DKIM, and is a requirement for implementing DMARC.</maml:para>
+      <maml:para>In the past, SPF records had their own DNS resource record type, also called "SPF".  SPF records of type SPF are now historic, and the DNS TXT record should be used.</maml:para>
+      <maml:para>In addition, Microsoft briefly tried to create Sender ID, a very similar DNS record that started with "spf2.0".  That is also historic and no longer in use.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Test-SpfRecord</maml:name>
+        <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="Name">
+          <maml:name>DomainName</maml:name>
+          <maml:description>
+            <maml:para>The domain name to test.  Be sure to include any applicable subdomains (i.e., "contoso.com" and "newsletters.contoso.com" are two different domains).</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="Name">
+        <maml:name>DomainName</maml:name>
+        <maml:description>
+          <maml:para>The domain name to test.  Be sure to include any applicable subdomains (i.e., "contoso.com" and "newsletters.contoso.com" are two different domains).</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>None</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>This cmdlet does not accept pipeline input.</maml:para>
+        </maml:description>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>System.Void</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>This cmdlet does not generate pipeline output.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para>SPF record evaluation must not result in more than ten DNS lookups.  Otherwise, the SPF result is "PermError".  This cmdlet does not count how many DNS lookups are done.</maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>-------------------------- Example 1 --------------------------</maml:title>
+        <dev:code>PS C:\&gt; {{ Add example code here }}</dev:code>
+        <dev:remarks>
+          <maml:para>Tests the SPF record for contoso.com.  This resolves the DNS TXT reocrd "contoso.com."</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version:</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Test-DkimSelector</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>Test-DmarcRecord</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>about_SPF</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+      <maml:navigationLink>
+        <maml:linkText>about_IDNEmailAuthentication</maml:linkText>
+        <maml:uri></maml:uri>
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+</helpItems>
