@@ -845,7 +845,7 @@
         <maml:title>-------------------------- Example 3 --------------------------</maml:title>
         <dev:code>PS C:\&gt; Test-MailPolicy tailspintoys.com -DkimSelectorsToCheck "marketing" -BimiSelectorsToCheck "default"</dev:code>
         <dev:remarks>
-          <maml:para>This will do everything the first exmaple does, but also check the DKIM selector "marketing" and the BIMI selector "default".</maml:para>
+          <maml:para>This will do everything the first example does, but also check the DKIM selector "marketing" and the BIMI selector "default".</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>

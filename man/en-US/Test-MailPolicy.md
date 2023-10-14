@@ -41,7 +41,7 @@ This will do everything the previous example does, but also check the DKIM selec
 PS C:\> Test-MailPolicy tailspintoys.com -DkimSelectorsToCheck "marketing" -BimiSelectorsToCheck "default"
 ```
 
-This will do everything the first exmaple does, but also check the DKIM selector "marketing" and the BIMI selector "default".
+This will do everything the first example does, but also check the DKIM selector "marketing" and the BIMI selector "default".
 
 ## PARAMETERS
 
