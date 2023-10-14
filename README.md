@@ -1,5 +1,5 @@
 # MailPolicyExplainer
-![Unofficial logo: email with an info icon](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/icon/icon.svg)
+![Unofficial logo: email with an info icon](https://raw.githubusercontent.com/rhymeswithmogul/MailPolicyExplainer/main/icon/icon.svg)
 
 A PowerShell module to fetch and analyze a domain's mail-related DNS records.
 
