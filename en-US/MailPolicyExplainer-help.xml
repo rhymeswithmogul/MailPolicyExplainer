@@ -358,9 +358,9 @@
   </command:command>
   <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
     <command:details>
-      <command:name>Test-DaneRecords</command:name>
+      <command:name>Test-DaneRecord</command:name>
       <command:verb>Test</command:verb>
-      <command:noun>DaneRecords</command:noun>
+      <command:noun>DaneRecord</command:noun>
       <maml:description>
         <maml:para>This cmdlet tests DANE records for correctness.</maml:para>
       </maml:description>
@@ -375,7 +375,7 @@
     </maml:description>
     <command:syntax>
       <command:syntaxItem>
-        <maml:name>Test-DaneRecords</maml:name>
+        <maml:name>Test-DaneRecord</maml:name>
         <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
           <maml:name>DomainName</maml:name>
           <maml:description>
@@ -432,7 +432,7 @@
     <command:examples>
       <command:example>
         <maml:title>-------------------------- Example 1 --------------------------</maml:title>
-        <dev:code>PS C:\&gt; Test-DaneRecords contoso.com</dev:code>
+        <dev:code>PS C:\&gt; Test-DaneRecord contoso.com</dev:code>
         <dev:remarks>
           <maml:para>This will look up the DANE records for each of contoso.com's MX servers.</maml:para>
           <maml:para>For example, if contoso.com has MX records for "mail.contoso.com" and "email.fabrikam.com", then the DNS TLSA records for "_25._tcp.mail.contoso.com" and "_25._tcp.email.fabrikam.com" will be tested.</maml:para>
@@ -440,7 +440,7 @@
       </command:example>
       <command:example>
         <maml:title>-------------------------- Example 1 --------------------------</maml:title>
-        <dev:code>PS C:\&gt; Test-DaneRecords woodgrovebank.com</dev:code>
+        <dev:code>PS C:\&gt; Test-DaneRecord woodgrovebank.com</dev:code>
         <dev:remarks>
           <maml:para>This will look up the DANE records for each of woodgrovebank.com's MX servers.</maml:para>
           <maml:para>For example, if woodgrovebank.com uses Exchange Online, this cmdlet may look up and test a TLSA record called "_25._tcp.woodgrovebank-com.1a2b.mx.microsoft".</maml:para>
@@ -450,10 +450,10 @@
     <command:relatedLinks>
       <maml:navigationLink>
         <maml:linkText>Online Version:</maml:linkText>
-        <maml:uri>https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/Test-DaneRecords.md</maml:uri>
+        <maml:uri>https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/Test-DaneRecord.md</maml:uri>
       </maml:navigationLink>
       <maml:navigationLink>
-        <maml:linkText>Test-MxRecords</maml:linkText>
+        <maml:linkText>Test-MXRecord</maml:linkText>
         <maml:uri></maml:uri>
       </maml:navigationLink>
       <maml:navigationLink>
@@ -863,7 +863,7 @@
         <maml:uri></maml:uri>
       </maml:navigationLink>
       <maml:navigationLink>
-        <maml:linkText>Test-DaneRecords</maml:linkText>
+        <maml:linkText>Test-DaneRecord</maml:linkText>
         <maml:uri></maml:uri>
       </maml:navigationLink>
       <maml:navigationLink>
@@ -879,7 +879,7 @@
         <maml:uri></maml:uri>
       </maml:navigationLink>
       <maml:navigationLink>
-        <maml:linkText>Test-MXRecords</maml:linkText>
+        <maml:linkText>Test-MXRecord</maml:linkText>
         <maml:uri></maml:uri>
       </maml:navigationLink>
       <maml:navigationLink>
@@ -1002,9 +1002,9 @@
   </command:command>
   <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
     <command:details>
-      <command:name>Test-MXRecords</command:name>
+      <command:name>Test-MXRecord</command:name>
       <command:verb>Test</command:verb>
-      <command:noun>MXRecords</command:noun>
+      <command:noun>MXRecord</command:noun>
       <maml:description>
         <maml:para>Tests a domain's MX records.</maml:para>
       </maml:description>
@@ -1015,7 +1015,7 @@
     </maml:description>
     <command:syntax>
       <command:syntaxItem>
-        <maml:name>Test-MXRecords</maml:name>
+        <maml:name>Test-MXRecord</maml:name>
         <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
           <maml:name>DomainName</maml:name>
           <maml:description>
@@ -1072,7 +1072,7 @@
     <command:examples>
       <command:example>
         <maml:title>-------------------------- Example 1 --------------------------</maml:title>
-        <dev:code>PS C:\&gt; Test-MXRecords contoso.com</dev:code>
+        <dev:code>PS C:\&gt; Test-MXRecord contoso.com</dev:code>
         <dev:remarks>
           <maml:para>Tests the DNS MX records (if they exist) for "contoso.com."</maml:para>
         </dev:remarks>
@@ -1081,7 +1081,7 @@
     <command:relatedLinks>
       <maml:navigationLink>
         <maml:linkText>Online Version:</maml:linkText>
-        <maml:uri>https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/Test-MXRecords.md</maml:uri>
+        <maml:uri>https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/Test-MXRecord.md</maml:uri>
       </maml:navigationLink>
       <maml:navigationLink>
         <maml:linkText>about_MXRecords</maml:linkText>
@@ -1185,7 +1185,7 @@
         <maml:uri></maml:uri>
       </maml:navigationLink>
       <maml:navigationLink>
-        <maml:linkText>Test-DaneRecords</maml:linkText>
+        <maml:linkText>Test-DaneRecord</maml:linkText>
         <maml:uri></maml:uri>
       </maml:navigationLink>
       <maml:navigationLink>

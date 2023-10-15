@@ -1,5 +1,6 @@
-Function Write-GoodNews
+﻿Function Write-GoodNews
 {
+	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '', Justification='Output colored text in a PS5-compatible manner.')]
 	[OutputType([Void])]
 	Param(
 		[Parameter(Position=0)]
@@ -12,6 +13,7 @@ Function Write-GoodNews
 
 Function Write-BadPractice
 {
+	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '', Justification='Output colored text in a PS5-compatible manner.')]
 	[OutputType([Void])]
 	Param(
 		[Parameter(Position=0)]
@@ -24,6 +26,7 @@ Function Write-BadPractice
 
 Function Write-BadNews
 {
+	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '', Justification='Output colored text in a PS5-compatible manner.')]
 	[OutputType([Void])]
 	Param(
 		[Parameter(Position=0)]
@@ -34,7 +37,9 @@ Function Write-BadNews
 	Write-Host -ForegroundColor Red -Message "❌`t$Message"
 }
 
-Function Write-Informational {
+Function Write-Informational
+{
+	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '', Justification='Output colored text in a PS5-compatible manner.')]
 	[OutputType([Void])]
 	Param(
 		[Parameter(Mandatory, Position=0)]
@@ -48,29 +53,20 @@ Function Write-Informational {
 Function Get-RandomString
 {
 	[OutputType([String])]
-	# I feel like somewhere between 16 and 200 characters of junk will provide
-	# sufficient protection against passive cryptanalysis.  If you override the
-	# default values, know that larger values 
-	Param(
-		[ValidateRange(1, [UInt]::MaxValue)]
-		[UInt] $MinLength = 16,
+	Param()
 
-		[ValidateRange(1, [UInt]::MaxValue)]
-		[UInt] $MaxLength = 200
-	)
+	# We're going to return a random string of varying length to prevent passive
+	# cryptanalysis attacks (which are extremely unlikely).  16 to 256 bytes of
+	# added entropy should be sufficient, without pushing our packets too close
+	# to the smallest-possible MTU of 576 bytes (for IPv4).
+	$retvalLength = Get-Random -Minimum 16 -Maximum 256
 
-	If ($MinLength -ne $MaxLength) {
-		$retvalLength = Get-Random -Minimum $MinLength -Maximum $MaxLength
-	}
-	Else {
-		$retvalLength = $MaxLength
-	}
-	
 	# Per Google's advice, we will use random padding consisting of URL-safe
 	# characters:  A-Z, a-z, 0-9, period, underscore, hyphen, and tilde.
 	# Because Get-Random removes an item after selecting it, we're "multiplying"
 	# this string array by 30, so that we can pull up to $(2048 - 90) characters
-	# in Invoke-GooglePublicDnsApi.
+	# in Invoke-GooglePublicDnsApi (in case someone decides to increase the
+	# -Maximum value to the previous Get-Random call).
 	$chars = [Char[]]('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789~._-' * 30)
 	Return ((Get-Random -InputObject $chars -Count $retvalLength) -Join '')
 }
@@ -135,7 +131,7 @@ Function Test-AdspRecord
 		Else {
 			Write-BadPractice "DKIM ADSP: This DNS lookup is insecure. Enable DNSSEC for this domain."
 		}
-		
+
 		Write-BadPractice "DKIM ADSP: Author Domain Signing Practices is declared historic and should not be relied on."
 		$AdspRecord = $DnsLookup.Answer.Data
 
@@ -154,7 +150,8 @@ Function Test-AdspRecord
 	}
 }
 
-Function Get-RSAPublicKeyLength {
+Function Get-RSAPublicKeyLength
+{
 	[OutputType([UInt])]
 	Param(
 		[Parameter(Mandatory, Position=0)]
@@ -166,8 +163,8 @@ Function Get-RSAPublicKeyLength {
 	Return $rsa.KeySize
 }
 
-Function Test-DkimSelector {
-	[CmdletBinding()]
+Function Test-DkimSelector
+{
 	[OutputType([Void])]
 	[Alias('Test-DkimRecord', 'Test-DomainKeysSelector', 'Test-DomainKeysRecord')]
 	Param(
@@ -206,8 +203,8 @@ Function Test-DkimSelector {
 
 	ForEach ($token in ($DkimKeyRecord -Split ';')) {
 		$token = $token.Trim()
-		If ($token -Like 'v=*') {
-			$version = $token -Replace 'v='
+		If ($token -Like "v=*") {
+			$version = $token -Replace 'v=',''
 			If ($version -Eq 'DKIM1') {
 				Write-GoodNews "DKIM selector${Name}: This conforms to DKIM version 1."
 			} Else {
@@ -303,7 +300,6 @@ Function Test-DkimSelector {
 
 Function Test-DmarcRecord
 {
-	[CmdletBinding()]
 	[OutputType([Void])]
 	Param(
 		[Parameter(Mandatory, Position=0)]
@@ -447,7 +443,6 @@ Function Test-DmarcRecord
 
 Function Test-BimiSelector
 {
-	[CmdletBinding()]
 	[OutputType([Void])]
 	[Alias('Test-BimiRecord')]
 	Param(
@@ -517,10 +512,10 @@ Function Test-BimiSelector
 	}
 }
 
-Function Test-MXRecords
+Function Test-MXRecord
 {
-	[CmdletBinding()]
 	[OutputType([Void])]
+	[Alias('Test-MXRecords', 'Test-NullMXRecord')]
 	Param(
 		[Parameter(Mandatory, Position=0)]
 		[ValidateNotNullOrEmpty()]
@@ -565,7 +560,8 @@ Function Test-MXRecords
 	}
 }
 
-Function Test-MailPolicy {
+Function Test-MailPolicy
+{
 	[CmdletBinding()]
 	[OutputType([Void])]
 	Param(
@@ -578,14 +574,14 @@ Function Test-MailPolicy {
 	)
 
 	Write-Output "Analyzing email records for $DomainName"
-	Test-MxRecords $DomainName
+	Test-MXRecord $DomainName
 	Test-SpfRecord $DomainName
 	If ($DkimSelectorsToCheck.Count -gt 0) {
 		$DkimSelectorsToCheck | ForEach-Object {
 			Test-DkimSelector $DomainName -Name $_
 		}
 	}
-	Test-ADSPRecord $DomainName
+	Test-ADSPRecord $DomainName -VerbosePreference:$VerbosePreference
 	Test-DmarcRecord $DomainName
 	If ($BimiSelectorsToCheck.Count -gt 0) {
 		$BimiSelectorsToCheck | ForEach-Object {
@@ -593,8 +589,8 @@ Function Test-MailPolicy {
 		}
 	}
 	Test-MtaStsPolicy $DomainName
-	Test-SmtpTlsReportingPolicy $DomainName
-	Test-DaneRecords $DomainName
+	Test-SmtpTlsReportingPolicy $DomainName -VerbosePreference:$VerbosePreference
+	Test-DaneRecord $DomainName -VerbosePreference:$VerbosePreference
 }
 
 Function Test-MtaStsPolicy
@@ -605,7 +601,7 @@ Function Test-MtaStsPolicy
 		[Parameter(Mandatory, Position=0)]
 		[String] $DomainName
 	)
-	
+
 	$DnsLookup = Invoke-GooglePublicDnsApi "_mta-sts.$DomainName" 'TXT'
 
 	If ($DnsLookup.PSObject.Properties.Name -NotContains 'Answer' -or $DnsLookup.Status -eq 3)
@@ -632,7 +628,7 @@ Function Test-MtaStsPolicy
 	ForEach ($token in ($MtaStsRecord -Split ';')) {
 		$token = $token.Trim()
 
-		If ($token -CLike 'v=*') {		
+		If ($token -CLike "v=*") {
 			If ($token -eq 'v=STSv1') {
 				Write-GoodNews "MTA-STS Record: This domain's STS record is version 1."
 				$validSTSrecords++
@@ -803,7 +799,7 @@ Function Test-SpfRecord
 		Return
 	}
 
-	$SpfRecord = ($DnsLookup.Answer | Where-Object type -eq 16).Data | Where-Object {$_ -CLike 'v=spf1 *' -or $_ -CLike 'spf2.0/*'}
+	$SpfRecord = ($DnsLookup.Answer | Where-Object type -eq 16).Data | Where-Object {$_ -CLike "v=spf1 *" -or $_ -CLike "spf2.0/*"}
 	If ($SpfRecord -CLike "v=spf1 *") {
 		$RecordType = 'SPF'
 	}
@@ -824,9 +820,9 @@ Function Test-SpfRecord
 
 	Write-Verbose "Checking the $RecordType record: `"$SpfRecord`""
 	If ($DnssecSecured) {
-		Write-Output "${RecordType}: This DNS lookup is secured with DNSSEC."
+		Write-GoodNews "${RecordType}: This DNS lookup is secured with DNSSEC."
 	}
-	
+
 	ForEach ($token in ($SpfRecord -Split ' ')) {
 		#region Check SPF versions
 		If ($token -Eq "v=spf1") {
@@ -849,7 +845,7 @@ Function Test-SpfRecord
 		ElseIf ($token -Like 'redirect=*') {
 			Write-Informational "${RecordType}: Use the ${Domain}'s $RecordType record instead."
 		}
-		
+
 		#region Check A tokens.
 		ElseIf ($token -Match '^[\+\-\?\~]?a([:/]*)' -and $token -NotMatch "all$") {
 			If ($token -Match "^\+?a$") {
@@ -977,7 +973,7 @@ Function Test-SpfRecord
 			}
 		}
 		#endregion
-		
+
 		#region Check exists tokens
 		ElseIf ($token -Match "^[\+\-\?\~]?exists:.*") {
 			If ($token -Match "^\+?exists:.*") {
@@ -1134,7 +1130,7 @@ Function Test-SpfRecord
 			}
 		}
 		#endregion
-			
+
 		#region Check for the "all" token.
 		ElseIf ($token -Match "^[\+\-\?\~]?all") {
 			If ($token -Match "^\+?all") {
@@ -1151,14 +1147,14 @@ Function Test-SpfRecord
 			}
 		}
 		#endregion
-			
+
 		ElseIf ($token -Like "exp=*")
 		{
 			$ExplanationRecord  = $token -Replace 'exp='
 			$ExplanationMessage = ((Invoke-GooglePublicDnsApi $ExplanationRecord 'TXT').Answer | Where-Object Type -eq 16).Data
 			Write-Informational "${RecordType}: Include this explanation with SPF failures: `"$ExplanationMessage`""
 		}
-			
+
 		ElseIf ($token.Length -gt 0) {
 			Write-BadNews "${RecordType}: PermError while processing the unknown token $token"
 			Return
@@ -1166,11 +1162,11 @@ Function Test-SpfRecord
 	}
 }
 
-Function Test-DaneRecords
+Function Test-DaneRecord
 {
 	[CmdletBinding()]
 	[OutputType([Void])]
-	[Alias('Test-TlsaRecords')]
+	[Alias('Test-DaneRecords', 'Test-TlsaRecord', 'Test-TlsaRecords')]
 	Param(
 		[Parameter(Mandatory, Position=0)]
 		[ValidateNotNullOrEmpty()]

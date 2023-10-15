@@ -73,7 +73,7 @@ As this module relies on parsing DNS records that are supposed to follow a stric
 
 # SEE ALSO
 - [Test-MailPolicy](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/Test-MailPolicy.md)
-- [Test-MXRecords](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/Test-MXRecords.md)
+- [Test-MXRecord](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/Test-MXRecord.md)
 - [about_SMTP](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/about_SMTP.md)
 - [about_MXRecords](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/about_MXRecords.md)
 - [about_NullMXRecords](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/about_NullMXRecords.md)
@@ -82,7 +82,7 @@ As this module relies on parsing DNS records that are supposed to follow a stric
 - [Test-BimiSelector](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/Test-BimiSelector.md)
 - [about_BIMI](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/about_BIMI.md)
 
-- [Test-DaneRecords](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/Test-DaneRecords.md)
+- [Test-DaneRecord](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/Test-DaneRecord.md)
 - [about_DANERecords](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/about_DANERecords.md)
 - [about_DANERecordsAcronyms](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/about_DANERecordsAcronyms.md)
 - [about_DANERecordsUsage](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/about_DANERecordsUsage.md)

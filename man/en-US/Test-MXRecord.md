@@ -1,11 +1,11 @@
 ---
 external help file: MailPolicyExplainer-help.xml
 Module Name: MailPolicyExplainer
-online version: https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/Test-MXRecords.md
+online version: https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/Test-MXRecord.md
 schema: 2.0.0
 ---
 
-# Test-MXRecords
+# Test-MXRecord
 
 ## SYNOPSIS
 Tests a domain's MX records.
@@ -13,7 +13,7 @@ Tests a domain's MX records.
 ## SYNTAX
 
 ```
-Test-MXRecords [-DomainName] <String> [<CommonParameters>]
+Test-MXRecord [-DomainName] <String> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,7 +25,7 @@ A lack of MX records does not imply that the domain does not receive email!  If 
 
 ### Example 1
 ```powershell
-PS C:\> Test-MXRecords contoso.com
+PS C:\> Test-MXRecord contoso.com
 ```
 
 Tests the DNS MX records (if they exist) for "contoso.com."

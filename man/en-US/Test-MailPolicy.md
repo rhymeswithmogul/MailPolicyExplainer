@@ -109,13 +109,14 @@ This cmdlet (and the others in this module) will test for DNSSEC.  While it is n
 If you do not want to run all of these tests, there are cmdlets for each individual test, too.
 
 ## RELATED LINKS
+
 [Test-AdspRecord]()
 [Test-BimiSelector]()
-[Test-DaneRecords]()
+[Test-DaneRecord]()
 [Test-DkimSelector]()
 [Test-DmarcRecord]()
 [Test-MtaStsPolicy]()
-[Test-MXRecords]()
+[Test-MXRecord]()
 [Test-SmtpTlsReportingPolicy.md]()
 [Test-SpfRecord]()
 [about_MailPolicyExplainer]()

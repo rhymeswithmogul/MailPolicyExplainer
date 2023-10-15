@@ -66,5 +66,5 @@ SMTP TLS Reporting is defined in RFC 8460.
 ## RELATED LINKS
 
 [Test-MtaStsPolicy]()
-[Test-DaneRecords]()
+[Test-DaneRecord]()
 [about_SMTPTLSReporting]()

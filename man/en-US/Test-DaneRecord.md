@@ -1,11 +1,11 @@
 ---
 external help file: MailPolicyExplainer-help.xml
 Module Name: MailPolicyExplainer
-online version: https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/Test-DaneRecords.md
+online version: https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/Test-DaneRecord.md
 schema: 2.0.0
 ---
 
-# Test-DaneRecords
+# Test-DaneRecord
 
 ## SYNOPSIS
 This cmdlet tests DANE records for correctness.
@@ -13,7 +13,7 @@ This cmdlet tests DANE records for correctness.
 ## SYNTAX
 
 ```
-Test-DaneRecords [-DomainName] <String> [<CommonParameters>]
+Test-DaneRecord [-DomainName] <String> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -33,7 +33,7 @@ DANE was defined in RFC 6698 and updated by RFC 7218, RFC 7671, and RFC 8749.
 
 ### Example 1
 ```powershell
-PS C:\> Test-DaneRecords contoso.com
+PS C:\> Test-DaneRecord contoso.com
 ```
 
 This will look up the DANE records for each of contoso.com's MX servers.
@@ -42,7 +42,7 @@ For example, if contoso.com has MX records for "mail.contoso.com" and "email.fab
 
 ### Example 1
 ```powershell
-PS C:\> Test-DaneRecords woodgrovebank.com
+PS C:\> Test-DaneRecord woodgrovebank.com
 ```
 
 This will look up the DANE records for each of woodgrovebank.com's MX servers.
@@ -84,7 +84,7 @@ This cmdlet does not attempt to connect to the server and test that the DANE rec
 
 ## RELATED LINKS
 
-[Test-MxRecords]()
+[Test-MXRecord]()
 [about_DANERecords]()
 [about_DANERecordsAcronyms]()
 [about_DANERecordsUsage]()

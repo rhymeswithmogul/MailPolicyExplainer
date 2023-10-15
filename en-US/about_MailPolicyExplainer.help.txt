@@ -123,7 +123,7 @@ Bug Reporting and Feature Requests
 SEE ALSO
     - Test-MailPolicy
 
-    - Test-MXRecords
+    - Test-MXRecord
     - about_SMTP
     - about_MXRecords
     - about_NullMXRecords
@@ -132,7 +132,7 @@ SEE ALSO
     - Test-BimiSelector
     - about_BIMI
     
-    - Test-DaneRecords
+    - Test-DaneRecord
     - about_DANERecords
     - about_DANERecordsAcronyms
     - about_DANERecordsUsage
