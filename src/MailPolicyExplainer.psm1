@@ -165,7 +165,7 @@ Function Test-AdspRecord
 
 Function Get-RSAPublicKeyLength
 {
-	[OutputType([UInt])]
+	[OutputType([UInt16])]
 	Param(
 		[Parameter(Mandatory, Position=0)]
 		[String] $PublicKey
@@ -375,7 +375,7 @@ Function Test-DmarcRecord
 			}
 		}
 		ElseIf ($token -Like "pct=*") {
-			$pct = [UInt]($token -Replace 'pct=')
+			$pct = [Byte]($token -Replace 'pct=')
 			If ($pct -eq 100) {
 				If ($DmarcPolicy -Match "reject") {
 					Write-Informational "DMARC: Reject 100% of email that fails DMARC (default)."
@@ -546,7 +546,7 @@ Function Test-MXRecord
 	{
 		($DnsLookup.Answer | Where-Object Type -eq 15).Data | ForEach-Object {
 			$Pref, $Server = $_ -Split "\s+"
-			$Results += @{"Preference"=[UInt]$Pref; "Server"=$Server; "Implied"=$false}
+			$Results += @{"Preference"=[UInt16]$Pref; "Server"=$Server; "Implied"=$false}
 		}
 	}
 	ElseIf ($DnsLookup.PSObject.Properties.Name -NotContains 'Answer' -or $DnsLookup.Status -eq 3)
@@ -732,7 +732,9 @@ Function Test-MtaStsPolicy
 				}
 			}
 			ElseIf ($line -CLike 'max_age: *') {
-				$seconds = [UInt]$(($line -Split ':')[1].Trim())
+				# RFC 8461 doesn't define a data type for max_age, only saying that it is a "plaintext non-negative
+				# integer seconds" with a maximum of 31557600.  The smallest type that can hold that is UInt32.
+				$seconds = [UInt32]$(($line -Split ':')[1].Trim())
 				If ($seconds -gt 31557600) {
 					Write-BadPractice "MTA-STS Policy: This policy should be cached for $seconds seconds, which is longer than the maximum of 31557600 seconds."
 				}
@@ -1211,7 +1213,7 @@ Function Test-DaneRecord
 		| ForEach-Object `
 	{
 		$Preference, $Name = $_ -Split "\s+"
-		$MXServers += @{'Preference'=[UInt]$Preference; 'Server'=$Name}
+		$MXServers += @{'Preference'=[UInt16]$Preference; 'Server'=$Name}
 	}
 
 	If ($MXServers.Count -eq 1 -and $MXServers[0].Server -eq '.') {
