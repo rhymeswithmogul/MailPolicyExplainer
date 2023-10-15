@@ -130,7 +130,7 @@ Function Test-AdspRecord
 		[string] $DomainName
 	)
 
-	$DnsLookup = Invoke-GooglePublicDnsApi "_adsp._domainkey.$DomainName" 'TXT' -DebugPreference:$DebugPreference
+	$DnsLookup = Invoke-GooglePublicDnsApi "_adsp._domainkey.$DomainName" 'TXT' -Debug:$DebugPreference
 
 	If ($DnsLookup.PSObject.Properties.Name -NotContains 'Answer' -or $DnsLookup.Status -eq 3)
 	{
@@ -191,7 +191,7 @@ Function Test-DkimSelector
 		[string]$Name
 	)
 
-	$DnsLookup = Invoke-GooglePublicDnsApi "$Name._domainkey.$DomainName" 'TXT' -DebugPreference:$DebugPreference
+	$DnsLookup = Invoke-GooglePublicDnsApi "$Name._domainkey.$DomainName" 'TXT' -Debug:$DebugPreference
 
 	$Name = " $Name"
 
@@ -322,7 +322,7 @@ Function Test-DmarcRecord
 		[string] $DomainName
 	)
 
-	$DnsLookup = Invoke-GooglePublicDnsApi "_dmarc.$DomainName" 'TXT' -DebugPreference:$DebugPreference
+	$DnsLookup = Invoke-GooglePublicDnsApi "_dmarc.$DomainName" 'TXT' -Debug:$DebugPreference
 
 	If ($DnsLookup.PSObject.Properties.Name -NotContains 'Answer' -or $DnsLookup.Status -eq 3)
 	{
@@ -471,7 +471,7 @@ Function Test-BimiSelector
 		[string] $Name = 'default'
 	)
 
-	$DnsLookup = Invoke-GooglePublicDnsApi "$Name._bimi.$DomainName" 'TXT' -DebugPreference:$DebugPreference
+	$DnsLookup = Invoke-GooglePublicDnsApi "$Name._bimi.$DomainName" 'TXT' -Debug:$DebugPreference
 
 	If ($DnsLookup.PSObject.Properties.Name -NotContains 'Answer' -or $DnsLookup.Status -eq 3)
 	{
@@ -540,7 +540,7 @@ Function Test-MXRecord
 	)
 
 	$Results   = @()
-	$DnsLookup = Invoke-GooglePublicDnsApi $DomainName 'MX' -DebugPreference:$DebugPreference
+	$DnsLookup = Invoke-GooglePublicDnsApi $DomainName 'MX' -Debug:$DebugPreference
 
 	If ($DnsLookup.Status -eq 0)
 	{
@@ -631,7 +631,7 @@ Function Test-MtaStsPolicy
 		[String] $DomainName
 	)
 
-	$DnsLookup = Invoke-GooglePublicDnsApi "_mta-sts.$DomainName" 'TXT' -DebugPreference:$DebugPreference
+	$DnsLookup = Invoke-GooglePublicDnsApi "_mta-sts.$DomainName" 'TXT' -Debug:$DebugPreference
 
 	If ($DnsLookup.PSObject.Properties.Name -NotContains 'Answer' -or $DnsLookup.Status -eq 3)
 	{
@@ -757,7 +757,7 @@ Function Test-SmtpTlsReportingPolicy
 		[string] $DomainName
 	)
 
-	$DnsLookup = Invoke-GooglePublicDnsApi "_smtp._tls.$DomainName" 'TXT' -DebugPreference:$DebugPreference
+	$DnsLookup = Invoke-GooglePublicDnsApi "_smtp._tls.$DomainName" 'TXT' -Debug:$DebugPreference
 	If ($DnsLookup.PSObject.Properties.Name -NotContains 'Answer' -or $DnsLookup.Status -eq 3)
 	{
 		Write-BadNews "TLSRPT: SMTP TLS Reporting is not enabled for this domain."
@@ -822,7 +822,7 @@ Function Test-SpfRecord
 		[String] $DomainName
 	)
 
-	$DnsLookup = Invoke-GooglePublicDnsApi "$DomainName" 'TXT' -DebugPreference:$DebugPreference
+	$DnsLookup = Invoke-GooglePublicDnsApi "$DomainName" 'TXT' -Debug:$DebugPreference
 	If ($DnsLookup.PSObject.Properties.Name -NotContains 'Answer' -or $DnsLookup.Status -eq 3)
 	{
 		Write-BadNews "SPF: No TXT records were found at the root of $DomainName!"
@@ -1206,7 +1206,7 @@ Function Test-DaneRecord
 	# Fetch all MX records for this domain.  We won't do a DNSSEC check here,
 	# since we did that if the user entered here via Test-MailFlow.
 	$MXServers = @()
-	((Invoke-GooglePublicDnsApi $DomainName 'MX' -DebugPreference:$DebugPreference).Answer `
+	((Invoke-GooglePublicDnsApi $DomainName 'MX' -Debug:$DebugPreference).Answer `
 		| Where-Object type -eq 15).Data `
 		| ForEach-Object `
 	{
@@ -1225,7 +1225,7 @@ Function Test-DaneRecord
 
 	$MXServers | Sort-Object Preference | ForEach-Object {
 		$MXName = $_.Server
-		$DnsLookup = Invoke-GooglePublicDnsApi "_25._tcp.$MXName" 'TLSA' -DebugPreference:$DebugPreference
+		$DnsLookup = Invoke-GooglePublicDnsApi "_25._tcp.$MXName" 'TLSA' -Debug:$DebugPreference
 		If ($DnsLookup.PSObject.Properties.Name -NotContains 'Answer' -or $DnsLookup.Status -eq 2 -or $DnsLookup.Status -eq 3)
 		{
 			Write-BadNews "DANE: DANE records are not present for $MXName, TCP port 25."
