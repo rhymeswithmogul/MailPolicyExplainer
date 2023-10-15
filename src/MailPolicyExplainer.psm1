@@ -172,8 +172,28 @@ Function Get-RSAPublicKeyLength
 	)
 
 	$rsa = [Security.Cryptography.RSACryptoServiceProvider]::new()
-	$rsa.ImportFromPem("-----BEGIN PUBLIC KEY-----`r`n$PublicKey`r`n-----END PUBLIC KEY-----")
-	Return $rsa.KeySize
+
+	# .NET 7 adds the ImportFromPem method to instances of the RSA class.
+	# If it's available, use it.
+	If ($null -ne (Get-Member -InputObject $rsa | Where-Object Name -eq 'ImportFromPem'))
+	{
+		$rsa.ImportFromPem("-----BEGIN PUBLIC KEY-----`r`n$PublicKey`r`n-----END PUBLIC KEY-----")
+		Return $rsa.KeySize
+	}
+	# If we're using the older .NET Framework (Windows PowerShell), then we can
+	# only guess on the key length by looking at the size of the encoded data.
+	# If anyone knows a better way to make this work on .NET 6 and older, please
+	# submit a pull request!
+	Else {
+		Write-Verbose 'Accurate DKIM key length detection requires PowerShell 7.  We will do our best to guess.'
+		Switch ($PublicKey.Length) {
+			392		{Return 2048}
+			216		{Return 1024}
+			168		{Return 768}
+			128		{Return 512}
+			default	{Return 'unknown'}
+		}
+	}
 }
 
 Function Test-DkimSelector
