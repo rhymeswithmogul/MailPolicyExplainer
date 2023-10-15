@@ -590,13 +590,6 @@ Function Test-MailPolicy
 		[String[]] $BimiSelectorsToCheck
 	)
 
-	# This will ensure that -Verbose gets passed into cmdlets that support it,
-	# and that -Debug will make it into the DNS API calls.  Otherwise, we would
-	# have to explicitly add this to every function call, which would make our
-	# code harder to read.
-	$script:DebugPreference = $DebugPreference
-	$script:VerbosePreference = $VerbosePreference
-
 	Write-Output "Analyzing email records for $DomainName"
 	Test-MXRecord $DomainName
 	Test-SpfRecord $DomainName
@@ -615,10 +608,6 @@ Function Test-MailPolicy
 	Test-MtaStsPolicy $DomainName
 	Test-SmtpTlsReportingPolicy $DomainName
 	Test-DaneRecord $DomainName
-
-	# unset the preferences we (may have) set earlier.
-	$script:DebugPreference = $null
-	$script:VerbosePreference = $null
 }
 
 Function Test-MtaStsPolicy
