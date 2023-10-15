@@ -615,6 +615,10 @@ Function Test-MailPolicy
 	Test-MtaStsPolicy $DomainName
 	Test-SmtpTlsReportingPolicy $DomainName
 	Test-DaneRecord $DomainName
+
+	# unset the preferences we (may have) set earlier.
+	$script:DebugPreference = $null
+	$script:VerbosePreference = $null
 }
 
 Function Test-MtaStsPolicy
