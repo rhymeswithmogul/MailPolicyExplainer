@@ -8,7 +8,7 @@
 		[String] $Message
 	)
 
-	Write-Host -ForegroundColor Green -Message "✅`t$Message"
+	Write-Host -ForegroundColor Green -Object "✅`t$Message"
 }
 
 Function Write-BadPractice
@@ -21,7 +21,7 @@ Function Write-BadPractice
 		[String] $Message
 	)
 
-	Write-Host -ForegroundColor Yellow -Message "🟨`t$Message"
+	Write-Host -ForegroundColor Yellow -Object "🟨`t$Message"
 }
 
 Function Write-BadNews
@@ -34,7 +34,7 @@ Function Write-BadNews
 		[String] $Message
 	)
 
-	Write-Host -ForegroundColor Red -Message "❌`t$Message"
+	Write-Host -ForegroundColor Red -Object "❌`t$Message"
 }
 
 Function Write-Informational
@@ -47,7 +47,7 @@ Function Write-Informational
 		[String] $Message
 	)
 
-	Write-Host -ForegroundColor White -Message "ℹ️`t$Message"
+	Write-Host -ForegroundColor White -Object "ℹ️`t$Message"
 }
 
 Function Get-RandomString
