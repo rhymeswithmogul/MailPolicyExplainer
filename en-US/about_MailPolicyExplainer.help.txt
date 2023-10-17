@@ -33,19 +33,23 @@ EXAMPLES
     a domain doesn't use any other email sending platforms (such as Constant
     Contact), you can test any Office 365 customer with this command:
 
-    PS C:\>  Test-MailPolicy fabrikam.com -DkimSelectorsToCheck "selector1","selector2"
+    PS C:\>  Test-MailPolicy fabrikam.com `
+    >>          -DkimSelectorsToCheck "selector1","selector2"
 
     But what if they do use something like Constant Contact?  Assuming the DKIM
     selector name is known:
 
-    PS C:\>  Test-MailPolicy woodgrovebank.com -DkimSelectorsToCheck "selector1","selector2","constantcontact"
+    PS C:\>  Test-MailPolicy woodgrovebank.com `
+    >>          -DkimSelectorsToCheck "selector1","selector2","constantcontact"
 
     Note that sometimes emails can come from subdomains, and those subdomains
     will have their own DNS records.  You will need to run this cmdlet once per
     domain.
 
-    PS C:\>  Test-MailPolicy tailspintoys.com -DkimSelectorsToCheck "selector1","selector2"
-    PS C:\>  Test-MailPolicy shop.tailspintoys.com -DkimSelectorsToCheck "shopify"
+    PS C:\>  Test-MailPolicy tailspintoys.com   
+    >>          -DkimSelectorsToCheck "selector1","selector2"
+    PS C:\>  Test-MailPolicy shop.tailspintoys.com  
+    >>          -DkimSelectorsToCheck "shopify"
 
     Or, if you only want to test one aspect of email, you can test items
     individually.  For example, if yu're working on MTA-STS, you can skip all
@@ -69,8 +73,8 @@ Limitations
     While this module does its best to test the correctness of DNS records, it
     cannot ensure the complete validity of everything.  For example:
     
-    - This module can test MX records, but not whether or not A/AAAA records are
-      in place for those names.
+    - This module can test to make sure servers have both A and AAAA records,
+      but it does not check to see if they are both working.
     - This module can test SPF records, but it does not evaluate whether or not
       a PermError occurs, or if a required token is missing.
     - This module can test DKIM selectors, but it cannot test whether outgoing
@@ -129,6 +133,8 @@ SEE ALSO
     - about_NullMXRecords
     - about_IDNEmailAuthentication
 
+    - Test-IPVersions
+
     - Test-BimiSelector
     - about_BIMI
     
@@ -157,7 +163,7 @@ SEE ALSO
     - about_SPF
 
 KEYWORDS
-    SMTP, MX, SPF, DKIM, ADSP, DMARC, BIMI, DNS, DNSSEC, DANE, TLSA,
-    TXT, IDN, MTA-STS, mail, email, Exchange Online, Google Workspace,
-    Office 365.
+    SMTP, MX, SPF, Sender ID, DKIM, ADSP, DMARC, BIMI, DNS, DNSSEC, DANE, TLSA,
+    TXT, IDN, MTA-STS, TLSRPT, IPv4, IPv6, StartTLS, SSL, TLS, mail, email,
+    Exchange Online, Google Workspace, Office 365.
 

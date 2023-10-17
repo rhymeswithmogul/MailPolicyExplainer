@@ -120,6 +120,58 @@ Function Invoke-GooglePublicDnsApi
 	Return $result
 }
 
+Function Test-IPv4Address
+{
+	[CmdletBinding()]
+	[OutputType([Bool])]
+	Param(
+		[Parameter(Mandatory, Position=0)]
+		[ValidateNotNullOrEmpty()]
+		[String] $HostName
+	)
+
+	Return (Invoke-GooglePublicDnsApi $HostName -Type 'A').PSObject.Properties.Name -Match 'Answer'
+}
+
+Function Test-IPv6Address
+{
+	[CmdletBinding()]
+	[OutputType([Bool])]
+	Param(
+		[Parameter(Mandatory, Position=0)]
+		[ValidateNotNullOrEmpty()]
+		[String] $HostName
+	)
+
+	Return (Invoke-GooglePublicDnsApi $HostName -Type 'AAAA').PSObject.Properties.Name -Match 'Answer'
+}
+
+Function Test-IPVersions
+{
+	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns', '', Justification='We are always testing both IP versions.')]
+	[CmdletBinding()]
+	[OutputType([Void])]
+	Param(
+		[Parameter(Mandatory, Position=0)]
+		[ValidateNotNullOrEmpty()]
+		[String] $HostName
+	)
+
+	If (Test-IPv4Address $HostName) {
+		Write-GoodNews "IP: The server $HostName has an IPv4 address."
+	}
+	Else {
+		Write-BadPractice "IP: The server $HostName has no IPv4 addresses. IPv4-only clients cannot reach this server."
+	}
+
+	If (Test-IPv6Address $HostName) {
+		Write-GoodNews "IP: The server $HostName has an IPv6 address."
+	}
+	Else {
+		Write-BadPractice "IP: The server $HostName has no IPv6 addresses. IPv6-only clients cannot reach this server!"
+	}
+}
+
 Function Test-AdspRecord
 {
 	[CmdletBinding()]
@@ -594,6 +646,7 @@ Function Test-MXRecord
 		Else {
 			Write-GoodNews "MX: The server $($_.Server) can receive mail for this domain (at priority $($_.Preference))."
 		}
+		Test-IPVersions ($_.Server)
 	}
 }
 
@@ -686,6 +739,8 @@ Function Test-MtaStsPolicy
 		Write-BadNews "MTA-STS Record: We did not find exactly one STS TXT record.  We must assume MTA-STS is not supported!"
 		Return
 	}
+
+	Test-IPVersions "mta-sts.$DomainName"
 
 	$oldSP = [Net.ServicePointManager]::SecurityProtocol
 	Try {
