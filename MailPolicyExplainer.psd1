@@ -167,6 +167,7 @@ PrivateData = @{
 
 		# ReleaseNotes of this module
 		ReleaseNotes = '- New feature: we test to make sure servers are reachable over IPv4 and IPv6.
+- Bug fix: DKIM records without a version defined are now assumed to be version 1, per the RFC.
 - Bug fix: DKIM records without a key type defined are now assumed to be RSA keys, per the RFC.'
 
 	} # End of PSData hashtable

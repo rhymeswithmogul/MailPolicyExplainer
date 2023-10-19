@@ -287,12 +287,21 @@ Function Test-DkimSelector
 		Return
 	}
 
-	#region Check for default RSA key type.
+	#region Check for default values.
 	# If there is no "k=" token, it's assumed to be "k=rsa" (per the RFC).
-	# We will add an invalid token called "km" (Key type, iMplied) and handle
-	# that as a special case later.
-	If ($DkimKeyRecord -NotLike "*k=*") {
-		$DkimKeyRecord = $DkimKeyRecord -Replace "v=DKIM1;","v=DKIM1; km=rsa;"
+	# Additionally, if there is no "v=" token, it's assumed to be "v=DKIM1".
+	$VersionImplied = $false
+	$KeyTypeImplied = $false
+	
+	If ($DkimKeyRecord -NotLike "*v=*")
+	{
+		$DkimKeyRecord = "v=DKIM1; $DkimKeyRecord"
+		$VersionImplied = $true
+	}
+	If ($DkimKeyRecord -NotLike "*k=*")
+	{
+		$DkimKeyRecord = $DkimKeyRecord.Replace(';', ';k=rsa;', 1)
+		$KeyTypeImplied = $true
 	}
 	#endregion
 
@@ -300,7 +309,10 @@ Function Test-DkimSelector
 		$token = $token.Trim()
 		If ($token -Like "v=*") {
 			$version = $token -Replace 'v=',''
-			If ($version -Eq 'DKIM1') {
+			If ($VersionImplied) {
+				Write-GoodNews "DKIM selector${Name}: This is implied to conform to DKIM version 1."
+			}
+			ElseIf ($version -Eq 'DKIM1') {
 				Write-GoodNews "DKIM selector${Name}: This conforms to DKIM version 1."
 			} Else {
 				Write-BadNews "DKIM selector${Name}: This does not conform to DKIM version 1."
@@ -321,17 +333,13 @@ Function Test-DkimSelector
 				}
 			}
 		}
-		# Remember, "km=" is our own invalid token to denote that there is no "k" tag,
-		# and the key should be implied to be an RSA key.  We added that to the record several lines above.
-		ElseIf ($token -Like "k=*" -or $token -Like "km=*") {
-			$impliedRSA = $token -Like 'km=rsa'
-			$algorithm  = $token -Replace [RegEx]::'km?='
+		ElseIf ($token -Like "k=*") {
+			$algorithm  = $token -Replace 'k='
 
-			If ($impliedRSA) {
-				Write-BadPractice "DKIM selector${Name}: No key type was defined. It is assumed to have an RSA key."
+			If ($KeyTypeImplied) {
+				Write-GoodNews "DKIM selector${Name}: This is implied to have an RSA key. It is assumed to have an RSA key."
 			}
-
-			If ($algorithm -Eq 'rsa') {
+			ElseIf ($algorithm -Eq 'rsa') {
 				Write-GoodNews "DKIM selector${Name}: This has an RSA key.  It's older, slower, but widely supported."
 			}
 			ElseIf ($algorithm -eq 'ed25519') {
