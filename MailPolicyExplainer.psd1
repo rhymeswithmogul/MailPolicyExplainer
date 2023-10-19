@@ -152,8 +152,8 @@ PrivateData = @{
 			'email', 'mail', 'SPF', 'DKIM', 'DMARC', 'BIMI', 'DNSSEC', 'DANE', 'MTA-STS', 'MX',
 			'TLSRPT', 'STARTTLS', 'domainkey', 'TLS', 'TLSA', 'ADSP',  'DNS', 'policy', 'SenderID',
 			'tester', 'Reporting', 'Test', 'Exchange', 'Office365', 'Google', 'Network', 'Cloud',
-			'security', 'audit', 'IPv4', 'IPv6', 'SMTP', 'Windows', 'MacOS', 'Linux', 'PSEdition_Core',
-			'PSEdition_Desktop'
+			'security', 'audit', 'IPv4', 'IPv6', 'SMTP', 'RSA', 'Ed25519',
+			'Windows', 'MacOS', 'Linux', 'PSEdition_Core', 'PSEdition_Desktop'
 		)
 
 		# A URL to the license for this module.
@@ -166,7 +166,8 @@ PrivateData = @{
 		IconUri = 'https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/icon/PSGallery.png'
 
 		# ReleaseNotes of this module
-		ReleaseNotes = 'Now, we test to make sure servers are reachable over IPv4 and IPv6.'
+		ReleaseNotes = '- New feature: we test to make sure servers are reachable over IPv4 and IPv6.
+- Bug fix: DKIM records without a key type defined are now assumed to be RSA keys, per the RFC.'
 
 	} # End of PSData hashtable
 

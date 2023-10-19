@@ -287,6 +287,15 @@ Function Test-DkimSelector
 		Return
 	}
 
+	#region Check for default RSA key type.
+	# If there is no "k=" token, it's assumed to be "k=rsa" (per the RFC).
+	# We will add an invalid token called "km" (Key type, iMplied) and handle
+	# that as a special case later.
+	If ($DkimKeyRecord -NotLike "*k=*") {
+		$DkimKeyRecord = $DkimKeyRecord -Replace "v=DKIM1;","v=DKIM1; km=rsa;"
+	}
+	#endregion
+
 	ForEach ($token in ($DkimKeyRecord -Split ';')) {
 		$token = $token.Trim()
 		If ($token -Like "v=*") {
@@ -312,8 +321,16 @@ Function Test-DkimSelector
 				}
 			}
 		}
-		ElseIf ($token -Like "k=*") {
-			$algorithm = $token -Replace 'k='
+		# Remember, "km=" is our own invalid token to denote that there is no "k" tag,
+		# and the key should be implied to be an RSA key.  We added that to the record several lines above.
+		ElseIf ($token -Like "k=*" -or $token -Like "km=*") {
+			$impliedRSA = $token -Like 'km=rsa'
+			$algorithm  = $token -Replace [RegEx]::'km?='
+
+			If ($impliedRSA) {
+				Write-BadPractice "DKIM selector${Name}: No key type was defined. It is assumed to have an RSA key."
+			}
+
 			If ($algorithm -Eq 'rsa') {
 				Write-GoodNews "DKIM selector${Name}: This has an RSA key.  It's older, slower, but widely supported."
 			}
