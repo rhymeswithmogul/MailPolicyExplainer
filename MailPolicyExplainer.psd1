@@ -146,7 +146,7 @@ FileList = @(
 PrivateData = @{
 
 	PSData = @{
-		Prerelease = 'git'
+		#Prerelease = 'git'
 
 		# Tags applied to this module. These help with module discovery in online galleries.
 		Tags = @(
