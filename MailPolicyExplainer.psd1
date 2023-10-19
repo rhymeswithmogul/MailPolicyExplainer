@@ -137,6 +137,7 @@ FileList = @(
 	'INSTALL.md',
 	'LICENSE.txt',
 	'MailPolicyExplainer.psd1',
+	'NEWS.md',
 	'README.md',
 	'SECURITY.md'
 )
