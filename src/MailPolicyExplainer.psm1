@@ -292,7 +292,7 @@ Function Test-DkimSelector
 	# Additionally, if there is no "v=" token, it's assumed to be "v=DKIM1".
 	$VersionImplied = $false
 	$KeyTypeImplied = $false
-	
+
 	If ($DkimKeyRecord -NotLike "*v=*")
 	{
 		$DkimKeyRecord = "v=DKIM1; $DkimKeyRecord"
@@ -337,16 +337,16 @@ Function Test-DkimSelector
 			$algorithm  = $token -Replace 'k='
 
 			If ($KeyTypeImplied) {
-				Write-GoodNews "DKIM selector${Name}: This is implied to have an RSA key. It is assumed to have an RSA key."
+				Write-GoodNews "DKIM selector${Name}: This is implied to have an RSA key."
 			}
 			ElseIf ($algorithm -Eq 'rsa') {
-				Write-GoodNews "DKIM selector${Name}: This has an RSA key.  It's older, slower, but widely supported."
+				Write-GoodNews "DKIM selector${Name}: This has an RSA key."
 			}
 			ElseIf ($algorithm -eq 'ed25519') {
-				Write-GoodNews "DKIM selector${Name}: This has an Ed25519 key.  It's faster, more secure, but not widely supported (yet)."
+				Write-GoodNews "DKIM selector${Name}: This has an Ed25519 key.  Not all verifiers can verify these newer keys."
 			}
 			Else {
-				Write-BadNews "DKIM selector${Name}: This has an unknown key type ($algorithm) and cannot be used!"
+				Write-BadNews "DKIM selector${Name}: This has an unknown key type ($algorithm)!"
 			}
 		}
 		ElseIf ($token -Like "h=*") {
@@ -373,7 +373,7 @@ Function Test-DkimSelector
 					Write-GoodNews "DKIM selector${Name}: This selector is not valid for subdomains."
 				}
 				Else {
-					Write-BadNews "  DKIM selector${Name}: An unknown flag $flag was specified."
+					Write-BadNews "DKIM selector${Name}: An unknown flag $flag was specified."
 				}
 			}
 		}
