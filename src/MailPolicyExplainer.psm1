@@ -391,11 +391,16 @@ Function Test-DkimSelector
 			}
 			ElseIf ($DkimKeyRecord -Match 'k=rsa') {
 				$bits = Get-RSAPublicKeyLength $publickey
-				If ($bits -ge 2048) {
+				If ($bits -gt 4096) {
+					Write-BadPractice "DKIM selector${Name}: The RSA public key size is $bits bits. Verifiers may not support keys this large."
+				}
+				ElseIf ($bits -ge 2048) {
 					Write-GoodNews "DKIM selector${Name}: The RSA public key size is $bits bits."
-				} ElseIf ($bits -ge 1024) {
-					Write-BadPractice "DKIM selector${Name}: The RSA public key size is only $bits bits. 2048-bit keys are best practice."
-				} Else {
+				}
+				ElseIf ($bits -ge 1024) {
+					Write-BadPractice "DKIM selector${Name}: The RSA public key size is only $bits bits.  Upgrade to 2048 bits."
+				}
+				Else {
 					Write-BadNews "DKIM selector${Name}: The RSA public key size is only $bits bits. This key is too small to be used. Replace it with an Ed25519 or 2048-bit RSA key!"
 				}
 			}
