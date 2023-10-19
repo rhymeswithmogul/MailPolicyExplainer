@@ -163,13 +163,14 @@ PrivateData = @{
 		ProjectUri = 'https://github.com/rhymeswithmogul/MailPolicyExplainer'
 
 		# A URL to an icon representing this module.
-		IconUri = 'https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/icon/PSGallery.png'
+		IconUri = 'https://raw.githubusercontent.com/rhymeswithmogul/MailPolicyExplainer/main/icon/PSGallery.png'
 
 		# ReleaseNotes of this module
 		ReleaseNotes = '- New feature: we test to make sure servers are reachable over IPv4 and IPv6.
 - New feature: warn if DKIM keys exceed 4096-bit RSA.
 - Bug fix: DKIM records without a version defined are now assumed to be version 1, per the RFC.
-- Bug fix: DKIM records without a key type defined are now assumed to be RSA keys, per the RFC.'
+- Bug fix: DKIM records without a key type defined are now assumed to be RSA keys, per the RFC.
+- Bug fix: IconUri now points to the actual icon.'
 
 	} # End of PSData hashtable
 
