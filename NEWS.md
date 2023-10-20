@@ -1,5 +1,10 @@
 # MailPolicyExplainer News
 
+## Version 1.2.0
+This was also released on Thursday, October 19, 2023.
+
+The SPF test now follows the `redirect=` modifier's value.  For example, if domainA.com has `v=spf1 redirect=domainB.com`, the module will analyze domainB.com's SPF record.  (Previously, the `redirect=` test was non-functional.)
+
 ## Version 1.1.0
 This was released on Thursday, October 19, 2023.
 

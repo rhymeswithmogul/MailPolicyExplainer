@@ -969,7 +969,9 @@ Function Test-SpfRecord
 		#endregion
 
 		ElseIf ($token -Like 'redirect=*') {
-			Write-Informational "${RecordType}: Use the ${Domain}'s $RecordType record instead."
+			$Domain = ($token -Split '=')[1]
+			Write-Informational "${RecordType}: Use the SPF record at $Domain instead:"
+			Test-SpfRecord $Domain
 		}
 
 		#region Check A tokens.

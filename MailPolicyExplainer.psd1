@@ -12,7 +12,7 @@
 RootModule = 'src/MailPolicyExplainer.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.1.0'
+ModuleVersion = '1.2.0'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Core', 'Desktop')
@@ -167,11 +167,7 @@ PrivateData = @{
 		IconUri = 'https://raw.githubusercontent.com/rhymeswithmogul/MailPolicyExplainer/main/icon/PSGallery.png'
 
 		# ReleaseNotes of this module
-		ReleaseNotes = '- New feature: we test to make sure servers are reachable over IPv4 and IPv6.
-- New feature: warn if DKIM keys exceed 4096-bit RSA.
-- Bug fix: DKIM records without a version defined are now assumed to be version 1, per the RFC.
-- Bug fix: DKIM records without a key type defined are now assumed to be RSA keys, per the RFC.
-- Bug fix: IconUri now points to the actual icon.'
+		ReleaseNotes = 'The SPF tester now follows the redirect= modifier.'
 
 	} # End of PSData hashtable
 
