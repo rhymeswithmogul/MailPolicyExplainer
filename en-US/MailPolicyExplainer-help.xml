@@ -853,6 +853,17 @@
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="Recurse">
+          <maml:name>CountSpfDnsLookups</maml:name>
+          <maml:description>
+            <maml:para>Specify this switch to count how many additional DNS lookups are required to evaluate SPF.  The SPF test will run recursively to check all `redirect=` modifiers and `include:` tokens.  If more than ten additional DNS lookups are required, SPF parsers may choose to terminate and return a PermError.</maml:para>
+          </maml:description>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
       </command:syntaxItem>
     </command:syntax>
     <command:parameters>
@@ -891,6 +902,18 @@
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="Recurse">
+        <maml:name>CountSpfDnsLookups</maml:name>
+        <maml:description>
+          <maml:para>Specify this switch to count how many additional DNS lookups are required to evaluate SPF.  The SPF test will run recursively to check all `redirect=` modifiers and `include:` tokens.  If more than ten additional DNS lookups are required, SPF parsers may choose to terminate and return a PermError.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
       </command:parameter>
     </command:parameters>
     <command:inputTypes>
@@ -939,6 +962,13 @@
         <dev:code>PS C:\&gt; Test-MailPolicy tailspintoys.com -DkimSelectorsToCheck "marketing" -BimiSelectorsToCheck "default"</dev:code>
         <dev:remarks>
           <maml:para>This will do everything the first example does, but also check the DKIM selector "marketing" and the BIMI selector "default".</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>-------------------------- Example 4 --------------------------</maml:title>
+        <dev:code>PS C:\&gt; Test-MailPolicy lucernepublishing.com -CountSpfDnsLookups</dev:code>
+        <dev:remarks>
+          <maml:para>This will do everything the first example does, and test the SPF record recursively to make sure that no more than ten additional DNS lookups are required to evaluate the entire record.</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>
@@ -1297,11 +1327,11 @@
       </maml:description>
     </command:details>
     <maml:description>
-      <maml:para>This cmdlet tests and evaluates a domain's SPF record.</maml:para>
+      <maml:para>This cmdlet tests and evaluates a domain's SPF record.  When `-CountDnsLookups` is used, the SPF record will be evaluated recursively, counting how many additional DNS lookups are required to evaluate SPF.</maml:para>
       <maml:para>Sender Policy Framework (RFC 7208) is a DNS TXT record at the root of a DNS zone that lets a domain define its legitimate sources of email.  It can contain IP addresses, domain names, or even other SPF records.</maml:para>
       <maml:para>SPF provides a complementary authentication to DKIM, and is a requirement for implementing DMARC.</maml:para>
       <maml:para>In the past, SPF records had their own DNS resource record type, also called "SPF".  SPF records of type SPF are now historic, and the DNS TXT record should be used.</maml:para>
-      <maml:para>In addition, Microsoft briefly tried to create Sender ID, a very similar DNS record that started with "spf2.0".  That is also historic and no longer in use.</maml:para>
+      <maml:para>In addition, Microsoft briefly tried to create Sender ID, a very similar DNS record that started with "spf2.0".  That is historic and no longer in use.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem>
@@ -1318,6 +1348,18 @@
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="Recurse, CountSpfDnsLookups">
+          <maml:name>CountDnsLookups</maml:name>
+          <maml:description>
+            <maml:para>Specify this parameter to count how many DNS lookups are required to evaluate this SPF record, to make sure it isn't over the limit of ten additional lookups, after which point, SPF evaluators may choose to stop processing and return a PermError.  This switch will cause this cmdlet to operate recursively, and evaluate any SPF records found via the "redirect" modifier and the "include" token.</maml:para>
+            <maml:para>PROTIP: -Recurse is an alias for this switch.</maml:para>
+          </maml:description>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>False</dev:defaultValue>
+        </command:parameter>
       </command:syntaxItem>
     </command:syntax>
     <command:parameters>
@@ -1332,6 +1374,19 @@
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="Recurse, CountSpfDnsLookups">
+        <maml:name>CountDnsLookups</maml:name>
+        <maml:description>
+          <maml:para>Specify this parameter to count how many DNS lookups are required to evaluate this SPF record, to make sure it isn't over the limit of ten additional lookups, after which point, SPF evaluators may choose to stop processing and return a PermError.  This switch will cause this cmdlet to operate recursively, and evaluate any SPF records found via the "redirect" modifier and the "include" token.</maml:para>
+          <maml:para>PROTIP: -Recurse is an alias for this switch.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>False</dev:defaultValue>
       </command:parameter>
     </command:parameters>
     <command:inputTypes>
@@ -1355,16 +1410,21 @@
       </command:returnValue>
     </command:returnValues>
     <maml:alertSet>
-      <maml:alert>
-        <maml:para>SPF record evaluation must not result in more than ten DNS lookups.  Otherwise, the SPF result is "PermError".  This cmdlet does not count how many DNS lookups are done.</maml:para>
-      </maml:alert>
+      <maml:alert />
     </maml:alertSet>
     <command:examples>
       <command:example>
         <maml:title>-------------------------- Example 1 --------------------------</maml:title>
-        <dev:code>PS C:\&gt; {{ Add example code here }}</dev:code>
+        <dev:code>PS C:\&gt;  Test-SpfRecord contoso.com</dev:code>
         <dev:remarks>
-          <maml:para>Tests the SPF record for contoso.com.  This resolves the DNS TXT reocrd "contoso.com."</maml:para>
+          <maml:para>Tests the SPF record for contoso.com.  This resolves the DNS TXT record "contoso.com."</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>-------------------------- Example 2 --------------------------</maml:title>
+        <dev:code>PS C:\&gt;  Test-SpfRecord lucernepublishing.com -CountDnsLookups</dev:code>
+        <dev:remarks>
+          <maml:para>Tests the SPF record for lucernepublishing.com, evaluating it recursively and counting how many additional DNS lookups are performed.  This resolves the DNS TXT record "lucernepublishing.com" and any other SPF records referenced by any "redirect" modifiers or "include" tokens.</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>

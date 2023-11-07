@@ -13,11 +13,11 @@ Tests and explains a domain's SPF record.
 ## SYNTAX
 
 ```
-Test-SpfRecord [-DomainName] <String> [<CommonParameters>]
+Test-SpfRecord [-DomainName] <String> [-CountDnsLookups] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-This cmdlet tests and evaluates a domain's SPF record.
+This cmdlet tests and evaluates a domain's SPF record.  When `-CountDnsLookups` is used, the SPF record will be evaluated recursively, counting how many additional DNS lookups are required to evaluate SPF.
 
 Sender Policy Framework (RFC 7208) is a DNS TXT record at the root of a DNS zone that lets a domain define its legitimate sources of email.  It can contain IP addresses, domain names, or even other SPF records.
 
@@ -25,16 +25,23 @@ SPF provides a complementary authentication to DKIM, and is a requirement for im
 
 In the past, SPF records had their own DNS resource record type, also called "SPF".  SPF records of type SPF are now historic, and the DNS TXT record should be used.
 
-In addition, Microsoft briefly tried to create Sender ID, a very similar DNS record that started with "spf2.0".  That is also historic and no longer in use.
+In addition, Microsoft briefly tried to create Sender ID, a very similar DNS record that started with "spf2.0".  That is historic and no longer in use.
 
 ## EXAMPLES
 
 ### Example 1
 ```powershell
-PS C:\> {{ Add example code here }}
+PS C:\>  Test-SpfRecord contoso.com
 ```
 
-Tests the SPF record for contoso.com.  This resolves the DNS TXT reocrd "contoso.com."
+Tests the SPF record for contoso.com.  This resolves the DNS TXT record "contoso.com."
+
+### Example 2
+```powershell
+PS C:\>  Test-SpfRecord lucernepublishing.com -CountDnsLookups
+```
+
+Tests the SPF record for lucernepublishing.com, evaluating it recursively and counting how many additional DNS lookups are performed.  This resolves the DNS TXT record "lucernepublishing.com" and any other SPF records referenced by any "redirect" modifiers or "include" tokens.
 
 ## PARAMETERS
 
@@ -53,6 +60,23 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -CountDnsLookups
+Specify this parameter to count how many DNS lookups are required to evaluate this SPF record, to make sure it isn't over the limit of ten additional lookups, after which point, SPF evaluators may choose to stop processing and return a PermError.  This switch will cause this cmdlet to operate recursively, and evaluate any SPF records found via the "redirect" modifier and the "include" token.
+
+PROTIP: -Recurse is an alias for this switch.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: Recurse, CountSpfDnsLookups
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
@@ -65,9 +89,6 @@ This cmdlet does not accept pipeline input.
 
 ### System.Void
 This cmdlet does not generate pipeline output.
-
-## NOTES
-SPF record evaluation must not result in more than ten DNS lookups.  Otherwise, the SPF result is "PermError".  This cmdlet does not count how many DNS lookups are done.
 
 ## RELATED LINKS
 

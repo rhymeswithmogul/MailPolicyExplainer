@@ -57,6 +57,16 @@ EXAMPLES
 
     PS C:\>  Test-MtaStsPolicy adatum.com
 
+    SPF records can also be tested recursively, to see how many DNS lookups are
+    required to evaluate them. If more than ten additional DNS lookups are re-
+    quired, parsers may choose to terminate processing and return a PermError.
+    There are two ways to do this:
+
+    PS C:\>  Test-MailPolicy lucernepublishing.com -CountSpfDnsLookups
+    PS C:\>  Test-SpfRecord  lucernepublishing.com -CountDnsLookups
+
+    PROTIP: You can use the alias `-Recurse` instead.
+
 NOTE
     No command output is sent to the pipeline.  All output is sent to the output
     stream, where it can be read by humans.  However, the output stream can be
@@ -75,8 +85,8 @@ Limitations
     
     - This module can test to make sure servers have both A and AAAA records,
       but it does not check to see if they are both working.
-    - This module can test SPF records, but it does not evaluate whether or not
-      a PermError occurs, or if a required token is missing.
+    - This module can test SPF records, but it does not know if you're missing
+      an `include:` for some third-party service.
     - This module can test DKIM selectors, but it cannot test whether outgoing
       messages are being signed.
     - This module can test DANE records, but not whether or not the records are

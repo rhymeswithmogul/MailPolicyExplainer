@@ -21,6 +21,7 @@ In its simplest form, `Test-MailPolicy` will review almost every DNS record avai
 PS C:\>  Test-MailPolicy contoso.com
 ```
 
+## Checking DKIM Selectors
 Exchange Online always uses DKIM selectors "selector1" and "selector2".  If a domain doesn't use any other email sending platforms (such as Constant Contact), you can test any Office 365 customer with this command:
 ```powershell
 PS C:\>  Test-MailPolicy fabrikam.com -DkimSelectorsToCheck "selector1","selector2"
@@ -37,10 +38,20 @@ PS C:\>  Test-MailPolicy tailspintoys.com -DkimSelectorsToCheck "selector1","sel
 PS C:\>  Test-MailPolicy shop.tailspintoys.com -DkimSelectorsToCheck "shopify"
 ```
 
+## Running Only Some Tests
 Or, if you only want to test one aspect of email, you can test items individually.  For example, if yu're working on MTA-STS, you can skip all the other checks.
 ```powershell
 PS C:\>  Test-MtaStsPolicy adatum.com
 ```
 
-## Further Help
+## SPF DNS Lookup Counts
+It can also count how many DNS lookups are in an SPF record.
+```powershell
+PS C:\>  Test-MailPolicy northwindtraders.com -CountSpfDnsLookups  # or
+PS C:\>  Test-SpfRecord  northwindtraders.com -CountDnsLookups     # or
+PS C:\>  Test-SpfRecord  northwindtraders.com -Recurse
+```
+
+
+# Further Help
 For more help, why not start with [the conceptual help](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/about_MailPolicyExplainer.md)?

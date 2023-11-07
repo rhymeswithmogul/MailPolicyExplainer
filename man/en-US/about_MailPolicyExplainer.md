@@ -40,6 +40,15 @@ Or, if you only want to test one aspect of email, you can test items individuall
 PS C:\>  Test-MtaStsPolicy adatum.com
 ```
 
+SPF records can also be tested recursively, to see how many DNS lookups are required to evaluate them.  If more than ten additional DNS lookups are required, parsers may choose to terminate processing and return a PermError.  There are two ways to do this:
+
+```powershell
+PS C:\>  Test-MailPolicy lucernepublishing.com -CountSpfDnsLookups
+PS C:\>  Test-SpfRecord  lucernepublishing.com -CountDnsLookups
+```
+
+PROTIP: You can use the alias `-Recurse` instead.
+
 # NOTE
 No command output is sent to the pipeline.  All output is sent to the output stream, where it can be read by humans.  However, the output stream can be redirected to a text file.
 
@@ -50,7 +59,7 @@ All cmdlets provide detailed help, available using the PowerShell `Get-Help` com
 ## Limitations
 While this module does its best to test the correctness of DNS records, it cannot ensure the complete validity of everything.  For example:
  - This module can test MX records, but not whether or not A/AAAA records are in place for those names.
- - This module can test SPF records, but it does not evaluate whether or not a PermError occurs, or if a required token is missing.
+ - This module can test SPF records, but it does not know if you're missing an `include:` for some third-party service.
  - This module can test DKIM selectors, but it cannot test whether outgoing messages are being signed.
  - This module can test DANE records, but not whether or not the records are correct for an MX lookup.
  - This module can test BIMI records, but not whether the linked SVG image is valid, whether or not the client trusts the assertion, nor if outgoing emails have the appropriate BIMI headers.

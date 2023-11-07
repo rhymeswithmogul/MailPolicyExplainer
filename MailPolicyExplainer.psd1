@@ -12,7 +12,7 @@
 RootModule = 'src/MailPolicyExplainer.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.2.0'
+ModuleVersion = '1.3.0'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Core', 'Desktop')
@@ -167,7 +167,7 @@ PrivateData = @{
 		IconUri = 'https://raw.githubusercontent.com/rhymeswithmogul/MailPolicyExplainer/main/icon/PSGallery.png'
 
 		# ReleaseNotes of this module
-		ReleaseNotes = 'The SPF tester now follows the redirect= modifier.'
+		ReleaseNotes = 'The SPF checks now recurse "include:" tokens.'
 
 	} # End of PSData hashtable
 

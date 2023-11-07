@@ -1,7 +1,12 @@
 # MailPolicyExplainer Change Log
 
+## Version 1.3.0 (coming soon)
+- **NEW** SPF records are now tracked so that they count the number of DNS lookups performed.
+- **NEW** SPF "include:" tokens are now parsed recursively, unless the new `-NoRecursion` parameter is specified.
+- **FIX** Fixed grammar in some `Test-SpfRecord` messages.
+
 ## Version 1.2.0 (Thursday, October 19, 2023)
-The SPF tester now follows the `redirect=` modifier.  Previously, it would only display the value of the modifier (and not do it correctly, either, only showing a null value).
+~~The SPF tester now follows the `redirect=` modifier.  Previously, it would only display the value of the modifier (and not do it correctly, either, only showing a null value).~~ (This behavior was changed by version 1.3.0.)
 
 ## Version 1.1.0 (Thursday, October 19, 2023)
 - **NEW**: MX records and MTA-STS policy servers are now tested to make sure they can be reached over both IPv4 and IPv6.

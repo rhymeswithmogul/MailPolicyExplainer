@@ -13,8 +13,8 @@ Tests all email-related DNS records for a domain.
 ## SYNTAX
 
 ```
-Test-MailPolicy [-DomainName] <String> [-DkimSelectorsToCheck <String[]>] [-BimiSelectorsToCheck <String[]>]
- [<CommonParameters>]
+Test-MailPolicy [-DomainName] <String> [-CountSpfDnsLookups] [-DkimSelectorsToCheck <String[]>]
+ [-BimiSelectorsToCheck <String[]>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -42,6 +42,13 @@ PS C:\> Test-MailPolicy tailspintoys.com -DkimSelectorsToCheck "marketing" -Bimi
 ```
 
 This will do everything the first example does, but also check the DKIM selector "marketing" and the BIMI selector "default".
+
+### Example 4
+```powershell
+PS C:\> Test-MailPolicy lucernepublishing.com -CountSpfDnsLookups
+```
+
+This will do everything the first example does, and test the SPF record recursively to make sure that no more than ten additional DNS lookups are required to evaluate the entire record.
 
 ## PARAMETERS
 
@@ -85,6 +92,21 @@ Aliases:
 
 Required: True
 Position: 0
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -CountSpfDnsLookups
+Specify this switch to count how many additional DNS lookups are required to evaluate SPF.  The SPF test will run recursively to check all `redirect=` modifiers and `include:` tokens.  If more than ten additional DNS lookups are required, SPF parsers may choose to terminate and return a PermError.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: Recurse
+
+Required: False
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
