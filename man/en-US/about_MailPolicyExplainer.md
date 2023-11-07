@@ -83,37 +83,37 @@ As this module relies on parsing DNS records that are supposed to follow a stric
 # SEE ALSO
 - [Test-MailPolicy](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/Test-MailPolicy.md)
 - [Test-MXRecord](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/Test-MXRecord.md)
-- [about_SMTP](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/about_SMTP.md)
-- [about_MXRecords](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/about_MXRecords.md)
-- [about_NullMXRecords](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/about_NullMXRecords.md)
-- [about_IDNEmailAuthentication](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/about_IDNEmailAuthentication.md)
+- [about_SMTP](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/en-US/about_SMTP.help.txt)
+- [about_MXRecords](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/en-US/about_MXRecords.help.txt)
+- [about_NullMXRecords](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/en-US/about_NullMXRecords.help.txt)
+- [about_IDNEmailAuthentication](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/en-US/about_IDNEmailAuthentication.help.txt)
 
 - [Test-BimiSelector](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/Test-BimiSelector.md)
-- [about_BIMI](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/about_BIMI.md)
+- [about_BIMI](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/en-US/about_BIMI.help.txt)
 
 - [Test-DaneRecord](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/Test-DaneRecord.md)
-- [about_DANERecords](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/about_DANERecords.md)
-- [about_DANERecordsAcronyms](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/about_DANERecordsAcronyms.md)
-- [about_DANERecordsUsage](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/about_DANERecordsUsage.md)
+- [about_DANERecords](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/en-US/about_DANERecords.help.txt)
+- [about_DANERecordsAcronyms](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/en-US/about_DANERecordsAcronyms.help.txt)
+- [about_DANERecordsUsage](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/en-US/about_DANERecordsUsage.help.txt)
 
 - [Test-DkimSelector](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/Test-DkimSelector.md)
 - [Test-AdspRecord](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/Test-AdspRecord.md)
-- [about_DKIM](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/about_DKIM.md)
-- [about_DKIMADSP](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/about_DKIMADSP.md)
-- [about_DKIMRSAKeyUpdates](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/about_DKIMRSAKeyUpdates.md)
-- [about_DKIMEd25519](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/about_DKIMEd25519.md)
+- [about_DKIM](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/en-US/about_DKIM.help.txt)
+- [about_DKIMADSP](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/en-US/about_DKIMADSP.help.txt)
+- [about_DKIMRSAKeyUpdates](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/en-US/about_DKIMRSAKeyUpdates.help.txt)
+- [about_DKIMEd25519](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/en-US/about_DKIMEd25519.help.txt)
 
 - [Test-DmarcRecord](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/Test-DmarcRecord.md)
-- [about_DMARC](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/about_DMARC.md)
+- [about_DMARC](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/en-US/about_DMARC.help.txt)
 
 - [Test-MtaStsPolicy](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/Test-MtaStsPolicy.md)
-- [about_MTA-STS](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/about_MTA-STS.md)
+- [about_MTA-STS](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/en-US/about_MTA-STS.help.txt)
 
 - [Test-SmtpTlsReportingPolicy](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/Test-SmtpTlsReportingPolicy.md)
-- [about_SMTPTLSReporting](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/about_SMTPTLSReporting.md)
+- [about_SMTPTLSReporting](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/en-US/about_SMTPTLSReporting.help.txt)
 
 - [Test-SpfRecord](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/Test-SpfRecord.md)
-- [about_SPF](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/about_SPF.md)
+- [about_SPF](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/en-US/about_SPF.help.txt)
 
 # KEYWORDS
 SMTP, MX, SPF, DKIM, ADSP, DMARC, BIMI, DNS, DNSSEC, DANE, TLSA, TXT, IDN, MTA-STS, mail, email, Exchange Online, Google Workspace, Office 365.
