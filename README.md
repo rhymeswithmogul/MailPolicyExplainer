@@ -1,4 +1,8 @@
 # MailPolicyExplainer
+![GitHub release (with filter)](https://img.shields.io/github/v/release/rhymeswithmogul/MailPolicyExplainer)
+![GitHub](https://img.shields.io/github/license/rhymeswithmogul/MailPolicyExplainer?logo=gnu)
+[![PowerShell Gallery](https://img.shields.io/powershellgallery/dt/MailPolicyExplainer?logo=powershell&label=PowerShell%20Gallery%20downloads)](https://www.powershellgallery.com/packages/MailPolicyExplainer/)
+
 ![Unofficial logo: email with an info icon](https://raw.githubusercontent.com/rhymeswithmogul/MailPolicyExplainer/main/icon/icon.svg)
 
 A PowerShell module to fetch and analyze a domain's mail-related DNS records.
