@@ -167,7 +167,9 @@ PrivateData = @{
 		IconUri = 'https://raw.githubusercontent.com/rhymeswithmogul/MailPolicyExplainer/main/icon/PSGallery.png'
 
 		# ReleaseNotes of this module
-		ReleaseNotes = 'The SPF checks now recurse "include:" tokens.'
+		ReleaseNotes = '- Test-SpfRecord can now recursively evaluate SPF records to count how many DNS lookups are performed when evaluating `redirect=` modifiers and `include:` tokens.  Use either `Test-SpfRecord -CountDnsLookups`, `Test-SpfRecord -Recurse`, or `Test-MailPolicy -CountSpfDnsLookups` to use this new mode.
+- Fixed grammar in some `Test-SpfRecord` messages.
+- RFC documents were supposed to be made available as conceptual help, but were not.  This has been corrected.'
 
 	} # End of PSData hashtable
 
