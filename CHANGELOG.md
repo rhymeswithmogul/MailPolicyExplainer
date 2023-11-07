@@ -1,9 +1,9 @@
 # MailPolicyExplainer Change Log
 
-## Version 1.3.0 (coming soon)
-- **NEW** SPF records are now tracked so that they count the number of DNS lookups performed.
-- **NEW** SPF "include:" tokens are now parsed recursively, unless the new `-NoRecursion` parameter is specified.
+## Version 1.3.0 (Tuesday, November 7, 2023)
+- **NEW** `Test-SpfRecord` can now recursively evaluate SPF records to count how many DNS lookups are performed when evaluating `redirect=` modifiers and `include:` tokens.  Use either `Test-SpfRecord -CountDnsLookups`, `Test-SpfRecord -Recurse`, or `Test-MailPolicy -CountSpfDnsLookups` to use this new mode.  Note that this overrides the new behavior introduced in version 1.2.0.
 - **FIX** Fixed grammar in some `Test-SpfRecord` messages.
+- **FIX** RFC documents were supposed to be made available as conceptual help, but were not.  This has been corrected.
 
 ## Version 1.2.0 (Thursday, October 19, 2023)
 ~~The SPF tester now follows the `redirect=` modifier.  Previously, it would only display the value of the modifier (and not do it correctly, either, only showing a null value).~~ (This behavior was changed by version 1.3.0.)
