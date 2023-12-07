@@ -1,5 +1,12 @@
 # MailPolicyExplainer News
 
+## Version 1.3.1
+This was released on Wednesday, December 6, 2023.
+
+The output of `Test-IPVersions` is now indented when run from `Test-MxRecord` or `Test-MailPolicy`.  This ought to make things a little easier to read.
+
+More importantly, almost a dozen bugs have been squashed!
+
 ## Version 1.3.0
 This was released on Tuesdsay, November 7, 2023.
 
