@@ -1,6 +1,7 @@
 # MailPolicyExplainer Change Log
 
 ## Version 1.3.1 (Wednesday, December 9, 2023)
+- **FIX** The DMARC `fo` token is now parsed correctly when multiple values are present.
 - **FIX** The DMARC `rf` token is now parsed correctly.
 
 ## Version 1.3.0 (Tuesday, November 7, 2023)

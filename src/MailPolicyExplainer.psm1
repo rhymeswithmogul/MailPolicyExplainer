@@ -526,7 +526,7 @@ Function Test-DmarcRecord
 		}
 		ElseIf ($token -Like 'fo=*') {
 			If ($DmarcRecord -Match 'ruf=') {
-				Switch ($token -Replace 'fo=') {
+				Switch ($token.Substring(3) -Split ':') {
 					0    { Write-Informational 'DMARC: Generate a forensic report if SPF and DKIM both fail (default).' }
 					1    { Write-Informational 'DMARC: Generate a forensic report if either SPF or DKIM fail.'}
 					'd'  { Write-Informational 'DMARC: Generate a forensic report if DKIM fails, even if DMARC passes.' }

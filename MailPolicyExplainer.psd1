@@ -167,7 +167,9 @@ PrivateData = @{
 		IconUri = 'https://raw.githubusercontent.com/rhymeswithmogul/MailPolicyExplainer/main/icon/PSGallery.png'
 
 		# ReleaseNotes of this module
-		ReleaseNotes = '- The DMARC "rf" token is now parsed correctly.'
+		ReleaseNotes = 'This release fixes many bugs:
+- The DMARC `fo` token is now parsed correctly when multiple values are present.
+- The DMARC `rf` token is now parsed correctly.'
 
 	} # End of PSData hashtable
 
