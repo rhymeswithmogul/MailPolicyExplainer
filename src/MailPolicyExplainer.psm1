@@ -1115,7 +1115,7 @@ Function Test-SpfRecord
 			If ($CountDnsLookups) {
 				$DnsLookups.Value++
 			}
-			
+
 			If ($token -Match "^\+?mx$") {
 				Write-GoodNews "${RecordType}: Accept mail from $DomainName's MX servers.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
 			}
@@ -1432,7 +1432,16 @@ Function Test-DaneRecord
 		Return
 	}
 
-	If ($MXServers.Count -eq 0) {
+	# Check for the confusing case where a domain has no MX servers, and does
+	# not publish a null MX record. In that case, the domain's A and AAAA records
+	# will be substituted as a mail exchanger with preference 0. (Really, that's
+	# what it says to do in the RFC.  Go look it up.)
+	#
+	# We're checking for a count of zero, or a count of one where the server
+	# name is blank, just in case I add options for other DNS APIs in the future.
+	# Google Public DNS's API returns the latter format.
+	If ($MXServers.Count -eq 0 -or ($MXServers.Count -eq 1 -and $null -eq $MXServers[0].Name))
+	{
 		$MXServers = @(@{'Preference'=0; 'Server'=$DomainName})
 	}
 

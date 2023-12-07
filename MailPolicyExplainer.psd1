@@ -170,6 +170,7 @@ PrivateData = @{
 		ReleaseNotes = 'This release adds one new feature: IP version checks are now indented when run from `Test-MailPolicy`.
 
 Many bugs were fixed, too:
+- `Test-DaneRecords` now correctly checks DANE records for domains without MX records.
 - The DMARC `fo` token is now parsed correctly when multiple values are present.
 - The DMARC `rf` token is now parsed correctly.
 - The IntelliSense handling of `Test-SpfRecord` has been improved by hiding some internal-use-only parameters.
