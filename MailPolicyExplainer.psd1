@@ -167,10 +167,13 @@ PrivateData = @{
 		IconUri = 'https://raw.githubusercontent.com/rhymeswithmogul/MailPolicyExplainer/main/icon/PSGallery.png'
 
 		# ReleaseNotes of this module
-		ReleaseNotes = 'This release fixes many bugs and offers minor enhancements:
+		ReleaseNotes = 'This release adds one new feature: IP version checks are now indented when run from `Test-MailPolicy`.
+
+Many bugs were fixed, too:
 - The DMARC `fo` token is now parsed correctly when multiple values are present.
 - The DMARC `rf` token is now parsed correctly.
-- IP version checks are now indented when run from `Test-MailPolicy`.'
+- The IntelliSense handling of `Test-SpfRecord` has been improved by hiding some internal-use-only parameters.
+'
 
 	} # End of PSData hashtable
 

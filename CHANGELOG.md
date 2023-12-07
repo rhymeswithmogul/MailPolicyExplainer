@@ -4,6 +4,7 @@
 - **NEW** The IP version checks are now displayed with an indentation when run as a part of `Test-MailPolicy`.
 - **FIX** The DMARC `fo` token is now parsed correctly when multiple values are present.
 - **FIX** The DMARC `rf` token is now parsed correctly.
+- **FIX** IntelliSense's handling of `Test-SpfRecord` has been improved by hiding some internal-use-only parameters.
 
 ## Version 1.3.0 (Tuesday, November 7, 2023)
 - **NEW** `Test-SpfRecord` can now recursively evaluate SPF records to count how many DNS lookups are performed when evaluating `redirect=` modifiers and `include:` tokens.  Use either `Test-SpfRecord -CountDnsLookups`, `Test-SpfRecord -Recurse`, or `Test-MailPolicy -CountSpfDnsLookups` to use this new mode.  Note that this overrides the new behavior introduced in version 1.2.0.

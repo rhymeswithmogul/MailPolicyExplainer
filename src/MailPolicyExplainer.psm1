@@ -946,8 +946,10 @@ Function Test-SpfRecord
 		[Alias('Recurse', 'CountSpfDnsLookups')]
 		[Switch] $CountDnsLookups,
 
+		[Parameter(DontShow)]
 		[ref] $Recursions,
 
+		[Parameter(DontShow)]
 		[ref] $DnsLookups
 	)
 
