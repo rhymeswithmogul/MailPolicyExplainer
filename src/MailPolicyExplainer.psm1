@@ -1276,7 +1276,10 @@ Function Test-SpfRecord
 		#region Check exists tokens
 		ElseIf ($token -Match "^[\+\-\?\~]?exists:.*")
 		{
-			$DnsLookups.Value++
+			If ($CountDnsLookups) {
+				$DnsLookups.Value++
+			}
+			
 			If ($token -Match "^\+?exists:.*") {
 				Write-GoodNews "${RecordType}: Accept mail if $($token -Replace '\+' -Replace 'exists:') resolves to an A record.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
 			}
