@@ -538,14 +538,14 @@ Function Test-DmarcRecord
 			}
 		}
 		ElseIf ($token -Like 'rf=*') {
-			$formats = $token -Split ':'
+			$formats = $token.Substring(3) -Split ':'
 			ForEach ($format in $formats) {
 				$format = $format.Trim()
 				If ($format -eq 'afrf') {
 					Write-Informational 'DMARC: Failure reports can be sent in AFRF format (default).'
 				}
 				Else {
-					Write-BadNews "DMARC: Failure reports can be sent in the unknown $format format.  Mail receivers may ignore the entire DMARC record."
+					Write-BadNews "DMARC: The reporting format $format is not an allowed format.  Mail receivers may ignore the entire DMARC record."
 				}
 			}
 		}
