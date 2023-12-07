@@ -942,30 +942,41 @@ Function Test-MXRecord
 	$Results   = @()
 	$DnsLookup = Invoke-GooglePublicDnsApi $DomainName 'MX' -Debug:$DebugPreference
 
-	If ($DnsLookup.Status -eq 0)
-	{
-		($DnsLookup.Answer | Where-Object Type -eq 15).Data | ForEach-Object {
-			$Pref, $Server = $_ -Split "\s+"
-			$Results += @{"Preference"=[UInt16]$Pref; "Server"=$Server; "Implied"=$false}
-		}
-	}
-	ElseIf ($DnsLookup.PSObject.Properties.Name -NotContains 'Answer' -or $DnsLookup.Status -eq 3)
-	{
-		Write-BadPractice "MX: There are no MX records! This implies the domain will receive its own email."
-		$Results += @{"Preference"=0; "Server"=$DomainName; "Implied"=$true}
-	}
-
+	#region DNSSEC check
 	If ($DnsLookup.AD) {
 		Write-GoodNews "MX: This DNS lookup is secure."
 	}
 	Else {
 		Write-BadPractice "MX: This DNS lookup is insecure. Enable DNSSEC for this domain."
 	}
+	#endregion DNSSEC check
 
+	#region Implied MX record check
+	# Check to see if we should create an implied MX record from the root A/AAAA
+	# records, or if there are proper MX records alread in place.
+	If ($DnsLookup.PSObject.Properties.Name -NotContains 'Answer' -or $DnsLookup.Status -eq 3)
+	{
+		Write-BadPractice "MX: There are no MX records! This implies the domain will receive its own email."
+		$Results += @{"Preference"=0; "Server"=$DomainName; "Implied"=$true}
+	}
+	ElseIf ($DnsLookup.Status -eq 0)
+	{
+		($DnsLookup.Answer | Where-Object Type -eq 15).Data | ForEach-Object {
+			$Pref, $Server = $_ -Split "\s+"
+			$Results += @{"Preference"=[UInt16]$Pref; "Server"=$Server; "Implied"=$false}
+		}
+	}
+	Else {
+		Write-Error "MX: DNS lookup failed with status $($DnsLookup.Status)."
+	}
+	#endregion
+
+	#region Null MX check
 	If ($Results.Count -eq 1 -and $Results[0].Server -eq '.') {
 		Write-Informational 'MX: This domain does not send or receive email.'
 		Return
 	}
+	#endregion
 
 	$Results | Sort-Object Preference | ForEach-Object {
 		If ($_.Implied) {

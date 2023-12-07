@@ -1,7 +1,9 @@
 # MailPolicyExplainer Change Log
 
 ## Version 1.3.1 (Wednesday, December 9, 2023)
+- **FIX** Implied MX records are now displayed correctly.
 - **NEW** The IP version checks are now displayed with an indentation when run as a part of `Test-MailPolicy`.
+- **FIX** The IP version checks now work with implied MX records.
 - **FIX** `Test-DaneRecords` now correctly checks DANE records for domains without MX records.
 - **FIX** The DMARC `fo` token is now parsed correctly when multiple values are present.
 - **FIX** The DMARC `rf` token is now parsed correctly.
