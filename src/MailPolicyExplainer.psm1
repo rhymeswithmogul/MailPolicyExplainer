@@ -867,7 +867,21 @@ Function Test-MtaStsPolicy
 		Write-BadNews "MTA-STS Policy: It was found, but was returned with the wrong content type ($($policy.Headers.'Content-Type'))."
 	}
 	Else {
-		$policy.Content.Split("`r`n") | ForEach-Object {
+		#region Make sure the file has the correct line endings.
+		# The MTA-STS RFC says that they should end with CRLF (i.e., "`r`n").
+		# Split it up two different ways and see if we get the same results.
+		# If not, then someone probably saved the file with UNIX ("`r") endings.
+		# We're going to be strict and refuse to parse the file in this case.
+		$lines   = $policy.Content.Split("`r`n")
+		$LFlines = $policy.Content -Split "`r?`n"
+		
+		If ($lines -ne $LFLines) {
+			Write-BadNews "MTA-STS Policy: The policy file does not have the correct CRLF line endings!"
+			Return
+		}
+		#endregion
+		
+		$lines | ForEach-Object {
 			$line = $_.Trim()
 			If ($line -CLike 'version: *') {
 				If (($line -Split ':')[1].Trim() -Eq 'STSv1') {
@@ -1279,7 +1293,7 @@ Function Test-SpfRecord
 			If ($CountDnsLookups) {
 				$DnsLookups.Value++
 			}
-			
+
 			If ($token -Match "^\+?exists:.*") {
 				Write-GoodNews "${RecordType}: Accept mail if $($token -Replace '\+' -Replace 'exists:') resolves to an A record.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
 			}

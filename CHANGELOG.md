@@ -5,6 +5,7 @@
 - **FIX** `Test-DaneRecords` now correctly checks DANE records for domains without MX records.
 - **FIX** The DMARC `fo` token is now parsed correctly when multiple values are present.
 - **FIX** The DMARC `rf` token is now parsed correctly.
+- **FIX** The MTA-STS policy file test returns a better error message when the file does not have the correct CRLF line endings.
 - **FIX** The SPF `exists` and `mx` token parsers no longer generate a spurious error when *not* counting DNS lookups.
 - **FIX** IntelliSense's handling of `Test-SpfRecord` has been improved by hiding some internal-use-only parameters.
 - **FIX** Cleaned up `Test-DaneRecords`' output.

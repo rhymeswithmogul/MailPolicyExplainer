@@ -174,6 +174,7 @@ Many bugs were fixed, too:
 - The DMARC `fo` token is now parsed correctly when multiple values are present.
 - The DMARC `rf` token is now parsed correctly.
 - The IntelliSense handling of `Test-SpfRecord` has been improved by hiding some internal-use-only parameters.
+- The MTA-STS policy file test returns a better error message when the file does not have the correct CRLF line endings.
 - The SPF `exists` and `mx` token parsers no longer generate a spurious error when not counting DNS lookups.
 - Cleaned up the output of `Test-DaneRecords` a little.
 - Miscellaneous code cleanup.
