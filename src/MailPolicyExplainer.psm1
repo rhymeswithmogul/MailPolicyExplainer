@@ -169,21 +169,29 @@ Function Test-IPVersions
 	Param(
 		[Parameter(Mandatory, Position=0)]
 		[ValidateNotNullOrEmpty()]
-		[String] $HostName
+		[String] $HostName,
+
+		[Parameter(DontShow)]
+		[Switch] $IndentOutput
 	)
 
+	$Indent = ''
+	If ($IndentOutput) {
+		$Indent = '├──'
+	}
+
 	If (Test-IPv4Address $HostName) {
-		Write-GoodNews "IP: The server $HostName has an IPv4 address."
+		Write-GoodNews "${Indent}IP: The server $HostName has an IPv4 address."
 	}
 	Else {
-		Write-BadPractice "IP: The server $HostName has no IPv4 addresses. IPv4-only clients cannot reach this server."
+		Write-BadPractice "${Indent}IP: The server $HostName has no IPv4 addresses. IPv4-only clients cannot reach this server."
 	}
 
 	If (Test-IPv6Address $HostName) {
-		Write-GoodNews "IP: The server $HostName has an IPv6 address."
+		Write-GoodNews "${Indent}IP: The server $HostName has an IPv6 address."
 	}
 	Else {
-		Write-BadPractice "IP: The server $HostName has no IPv6 addresses. IPv6-only clients cannot reach this server!"
+		Write-BadPractice "${Indent}IP: The server $HostName has no IPv6 addresses. IPv6-only clients cannot reach this server!"
 	}
 }
 
@@ -691,7 +699,7 @@ Function Test-MXRecord
 		Else {
 			Write-GoodNews "MX: The server $($_.Server) can receive mail for this domain (at priority $($_.Preference))."
 		}
-		Test-IPVersions ($_.Server)
+		Test-IPVersions ($_.Server) -Indent
 	}
 }
 

@@ -167,9 +167,10 @@ PrivateData = @{
 		IconUri = 'https://raw.githubusercontent.com/rhymeswithmogul/MailPolicyExplainer/main/icon/PSGallery.png'
 
 		# ReleaseNotes of this module
-		ReleaseNotes = 'This release fixes many bugs:
+		ReleaseNotes = 'This release fixes many bugs and offers minor enhancements:
 - The DMARC `fo` token is now parsed correctly when multiple values are present.
-- The DMARC `rf` token is now parsed correctly.'
+- The DMARC `rf` token is now parsed correctly.
+- IP version checks are now indented when run from `Test-MailPolicy`.'
 
 	} # End of PSData hashtable
 
