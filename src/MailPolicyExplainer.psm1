@@ -1112,7 +1112,10 @@ Function Test-SpfRecord
 		#region Check MX tokens.
 		ElseIf ($token -Match '^[\+\-\?\~]?mx([:/]*)')
 		{
-			$DnsLookups.Value++
+			If ($CountDnsLookups) {
+				$DnsLookups.Value++
+			}
+			
 			If ($token -Match "^\+?mx$") {
 				Write-GoodNews "${RecordType}: Accept mail from $DomainName's MX servers.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
 			}

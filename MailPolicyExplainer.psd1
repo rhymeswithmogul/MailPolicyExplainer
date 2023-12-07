@@ -173,6 +173,7 @@ Many bugs were fixed, too:
 - The DMARC `fo` token is now parsed correctly when multiple values are present.
 - The DMARC `rf` token is now parsed correctly.
 - The IntelliSense handling of `Test-SpfRecord` has been improved by hiding some internal-use-only parameters.
+- The SPF `mx` token parser no longer generates a spurious error when not counting DNS lookups.
 '
 
 	} # End of PSData hashtable

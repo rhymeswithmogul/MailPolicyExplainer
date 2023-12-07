@@ -4,6 +4,7 @@
 - **NEW** The IP version checks are now displayed with an indentation when run as a part of `Test-MailPolicy`.
 - **FIX** The DMARC `fo` token is now parsed correctly when multiple values are present.
 - **FIX** The DMARC `rf` token is now parsed correctly.
+- **FIX** The SPF `mx` token parser no longer generates a spurious error when not counting DNS lookups.
 - **FIX** IntelliSense's handling of `Test-SpfRecord` has been improved by hiding some internal-use-only parameters.
 
 ## Version 1.3.0 (Tuesday, November 7, 2023)
