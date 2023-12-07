@@ -1446,7 +1446,9 @@ Function Test-DaneRecord
 	}
 
 	$MXServers | Sort-Object Preference | ForEach-Object {
-		$MXName = $_.Server
+		# Strip the trailing dot, if present. This is done for display purposes.
+		$MXName = $_.Server -Replace '\.$'
+
 		$DnsLookup = Invoke-GooglePublicDnsApi "_25._tcp.$MXName" 'TLSA' -Debug:$DebugPreference
 		If ($DnsLookup.PSObject.Properties.Name -NotContains 'Answer' -or $DnsLookup.Status -eq 2 -or $DnsLookup.Status -eq 3)
 		{
