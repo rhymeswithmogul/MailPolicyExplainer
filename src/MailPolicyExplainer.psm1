@@ -1,4 +1,8 @@
-﻿Function Write-GoodNews
+﻿#region Helper functions
+# The following functions are used internally by MailPolicyExplainer and are not
+# exposed to the end user.
+
+Function Write-GoodNews
 {
 	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '', Justification='Output colored text in a PS5-compatible manner.')]
 	[OutputType([Void])]
@@ -86,6 +90,66 @@ Function Get-RandomString
 	Return ((Get-Random -InputObject $chars -Count $retvalLength) -Join '')
 }
 
+Function Get-RSAPublicKeyLength
+{
+	[OutputType([UInt16])]
+	Param(
+		[Parameter(Mandatory, Position=0)]
+		[String] $PublicKey
+	)
+
+	$rsa = [Security.Cryptography.RSACryptoServiceProvider]::new()
+
+	# .NET 7 adds the ImportFromPem method to instances of the RSA class.
+	# If it's available, use it.
+	If ($null -ne (Get-Member -InputObject $rsa | Where-Object Name -eq 'ImportFromPem'))
+	{
+		$rsa.ImportFromPem("-----BEGIN PUBLIC KEY-----`r`n$PublicKey`r`n-----END PUBLIC KEY-----")
+		Return $rsa.KeySize
+	}
+	# If we're using the older .NET Framework (Windows PowerShell), then we can
+	# only guess on the key length by looking at the size of the encoded data.
+	# If anyone knows a better way to make this work on .NET 6 and older, please
+	# submit a pull request!
+	Else {
+		Write-Verbose 'Accurate DKIM key length detection requires PowerShell 7.  We will do our best to guess.'
+		Switch ($PublicKey.Length) {
+			392		{Return 2048}
+			216		{Return 1024}
+			168		{Return 768}
+			128		{Return 512}
+			default	{Return 'unknown'}
+		}
+	}
+}
+
+Function Test-IPv4Address
+{
+	[CmdletBinding()]
+	[OutputType([Bool])]
+	Param(
+		[Parameter(Mandatory, Position=0)]
+		[ValidateNotNullOrEmpty()]
+		[String] $HostName
+	)
+
+	Return (Invoke-GooglePublicDnsApi $HostName -Type 'A').PSObject.Properties.Name -Match 'Answer'
+}
+
+Function Test-IPv6Address
+{
+	[CmdletBinding()]
+	[OutputType([Bool])]
+	Param(
+		[Parameter(Mandatory, Position=0)]
+		[ValidateNotNullOrEmpty()]
+		[String] $HostName
+	)
+
+	Return (Invoke-GooglePublicDnsApi $HostName -Type 'AAAA').PSObject.Properties.Name -Match 'Answer'
+}
+#endregion Helper functions
+
 Function Invoke-GooglePublicDnsApi
 {
 	[CmdletBinding()]
@@ -133,32 +197,6 @@ Function Invoke-GooglePublicDnsApi
 	$result = Invoke-RestMethod @RequestParams
 	Write-Debug $result
 	Return $result
-}
-
-Function Test-IPv4Address
-{
-	[CmdletBinding()]
-	[OutputType([Bool])]
-	Param(
-		[Parameter(Mandatory, Position=0)]
-		[ValidateNotNullOrEmpty()]
-		[String] $HostName
-	)
-
-	Return (Invoke-GooglePublicDnsApi $HostName -Type 'A').PSObject.Properties.Name -Match 'Answer'
-}
-
-Function Test-IPv6Address
-{
-	[CmdletBinding()]
-	[OutputType([Bool])]
-	Param(
-		[Parameter(Mandatory, Position=0)]
-		[ValidateNotNullOrEmpty()]
-		[String] $HostName
-	)
-
-	Return (Invoke-GooglePublicDnsApi $HostName -Type 'AAAA').PSObject.Properties.Name -Match 'Answer'
 }
 
 Function Test-IPVersions
@@ -238,35 +276,166 @@ Function Test-AdspRecord
 	}
 }
 
-Function Get-RSAPublicKeyLength
+Function Test-BimiSelector
 {
-	[OutputType([UInt16])]
+	[CmdletBinding()]
+	[OutputType([Void])]
+	[Alias('Test-BimiRecord')]
 	Param(
 		[Parameter(Mandatory, Position=0)]
-		[String] $PublicKey
+		[ValidateNotNullOrEmpty()]
+		[string] $DomainName,
+
+		[Parameter(Position=1)]
+		[Alias('Selector', 'SelectorName')]
+		[string] $Name = 'default'
 	)
 
-	$rsa = [Security.Cryptography.RSACryptoServiceProvider]::new()
+	$DnsLookup = Invoke-GooglePublicDnsApi "$Name._bimi.$DomainName" 'TXT' -Debug:$DebugPreference
 
-	# .NET 7 adds the ImportFromPem method to instances of the RSA class.
-	# If it's available, use it.
-	If ($null -ne (Get-Member -InputObject $rsa | Where-Object Name -eq 'ImportFromPem'))
+	If ($DnsLookup.PSObject.Properties.Name -NotContains 'Answer' -or $DnsLookup.Status -eq 3)
 	{
-		$rsa.ImportFromPem("-----BEGIN PUBLIC KEY-----`r`n$PublicKey`r`n-----END PUBLIC KEY-----")
-		Return $rsa.KeySize
+		Write-Informational "BIMI selector ${Selector}: Not found!"
+		Return
 	}
-	# If we're using the older .NET Framework (Windows PowerShell), then we can
-	# only guess on the key length by looking at the size of the encoded data.
-	# If anyone knows a better way to make this work on .NET 6 and older, please
-	# submit a pull request!
+
+	If ($DnsLookup.AD) {
+		Write-GoodNews "BIMI selector ${Selector}: This DNS lookup is secure."
+	}
 	Else {
-		Write-Verbose 'Accurate DKIM key length detection requires PowerShell 7.  We will do our best to guess.'
-		Switch ($PublicKey.Length) {
-			392		{Return 2048}
-			216		{Return 1024}
-			168		{Return 768}
-			128		{Return 512}
-			default	{Return 'unknown'}
+		Write-BadPractice "BIMI selector ${Selector}: This DNS lookup is insecure. Enable DNSSEC for this domain."
+	}
+
+	$BimiRecord = ($DnsLookup.Answer | Where-Object type -eq 16).Data
+	If ($null -eq $BimiRecord)
+	{
+		Write-BadNews "BIMI selector ${Selector}: A record exists with no valid data!"
+		Return
+	}
+
+	ForEach ($token in ($BimiRecord -Split ';')) {
+		$token = $token.Trim()
+
+		If ($token -Eq "v=BIMI1") {
+			Write-GoodNews "BIMI selector ${Selector}: This is a BIMI version 1 record."
+		}
+
+		# BIMI evidence document tag
+		ElseIf ($token -Like "a=*") {
+			$policy = $token -Replace 'a='
+			If ($null -ne $policy) {
+				Write-GoodNews "BIMI selector ${Selector}: An authority evidence document can be found at $policy."
+			}
+			Else {
+				Write-Informational 'BIMI selector ${Selector}: No authority evidence is available.'
+			}
+		}
+		ElseIf ($token -Like "l=*") {
+			$locationURI = $token -Replace 'l='
+			If ($null -eq $locationURI) {
+				Write-Informational "BIMI selector ${Selector}: This domain does not participate in BIMI."
+			}
+			ElseIf ($locationURI -Like 'https://*') {
+				Write-GoodNews "BIMI selector ${Selector}: The brand indicator is at $locationURI."
+			}
+			Else {
+				Write-BadNews "BIMI selector ${Selector}: The brand indicator must be available over HTTPS! ($locationURI)"
+			}
+		}
+		ElseIf ($token.Length -gt 0) {
+			Write-BadNews "BIMI selector ${Selector}: An invalid tag was specified ($token)."
+		}
+	}
+}
+
+Function Test-DaneRecord
+{
+	[CmdletBinding()]
+	[OutputType([Void])]
+	[Alias('Test-DaneRecords', 'Test-TlsaRecord', 'Test-TlsaRecords')]
+	Param(
+		[Parameter(Mandatory, Position=0)]
+		[ValidateNotNullOrEmpty()]
+		[String] $DomainName
+	)
+
+	# Fetch all MX records for this domain.  We won't do a DNSSEC check here,
+	# since we did that if the user entered here via Test-MailFlow.
+	$MXServers = @()
+	((Invoke-GooglePublicDnsApi $DomainName 'MX' -Debug:$DebugPreference).Answer `
+		| Where-Object type -eq 15).Data `
+		| ForEach-Object `
+	{
+		$Preference, $Name = $_ -Split "\s+"
+		$MXServers += @{'Preference'=[UInt16]$Preference; 'Server'=$Name}
+	}
+
+	If ($MXServers.Count -eq 1 -and $MXServers[0].Server -eq '.') {
+		Write-Verbose 'DANE: This domain does not receive email.'
+		Return
+	}
+
+	# Check for the confusing case where a domain has no MX servers, and does
+	# not publish a null MX record. In that case, the domain's A and AAAA records
+	# will be substituted as a mail exchanger with preference 0. (Really, that's
+	# what it says to do in the RFC.  Go look it up.)
+	#
+	# We're checking for a count of zero, or a count of one where the server
+	# name is blank, just in case I add options for other DNS APIs in the future.
+	# Google Public DNS's API returns the latter format.
+	If ($MXServers.Count -eq 0 -or ($MXServers.Count -eq 1 -and $null -eq $MXServers[0].Name))
+	{
+		$MXServers = @(@{'Preference'=0; 'Server'=$DomainName})
+	}
+
+	$MXServers | Sort-Object Preference | ForEach-Object {
+		# Strip the trailing dot, if present. This is done for display purposes.
+		$MXName = $_.Server -Replace '\.$'
+
+		$DnsLookup = Invoke-GooglePublicDnsApi "_25._tcp.$MXName" 'TLSA' -Debug:$DebugPreference
+		If ($DnsLookup.PSObject.Properties.Name -NotContains 'Answer' -or $DnsLookup.Status -eq 2 -or $DnsLookup.Status -eq 3)
+		{
+			Write-BadNews "DANE: DANE records are not present for $MXName, TCP port 25."
+			Return
+		}
+
+		If ($DnsLookup.AD) {
+			Write-GoodNews "DANE: ${MXName}: The DNS lookup is secure."
+		}
+		Else {
+			Write-BadNews "DANE: ${MXName}: The DNS lookup is insecure; the DANE records cannot be used!  Enable DNSSEC for this domain."
+			Return
+		}
+
+		($DnsLookup.Answer | Where-Object type -eq 52).Data | ForEach-Object {
+			$Usage, $Selector, $Type, $CertData = $_ -Split '\s+'
+
+			If ($Selector -NotIn 0,1) {
+				Write-BadNews "DANE: ${MXName}: The DANE record is invalid! (Unknown Selector $Selector)"
+				Continue
+			}
+			ElseIf ($Type -NotIn 0,1,2) {
+				Write-BadNews "DANE: ${MXName}: The DANE record is invalid! (Unknown Type $Selector)"
+				Continue
+			}
+
+			Switch ($Usage) {
+				0 {
+					Write-BadPractice "DANE: ${MXName}: Found a PKIX-TA record, which is not supported for SMTP: $Usage $Selector $Type $CertData (not checked)"
+				}
+				1 {
+					Write-BadPractice "DANE: ${MXName}: Found a PKIX-EE record, which is not supported for SMTP: $Usage $Selector $Type $CertData (not checked)"
+				}
+				2 {
+					Write-GoodNews "DANE: ${MXName}: Found a DANE-TA record: $Usage $Selector $Type $CertData (not checked)"
+				}
+				3 {
+					Write-GoodNews "DANE: ${MXName}: Found a DANE-EE record: $Usage $Selector $Type $CertData (not checked)"
+				}
+				default {
+					Write-BadNews "DANE: ${MXName}: The DANE record is invalid! (Unknown Usage $Usage)"
+				}
+			}
 		}
 	}
 }
@@ -407,8 +576,6 @@ Function Test-DkimSelector
 		ElseIf ($token -Like 'p=*') {
 			$publickey = $token -Replace 'p='
 
-			# There's got to be a better way to measure the size of the public key.
-			# For lack of a better option, I'm going for the literal key length -- that is, of the Base64 encoding.
 			If ($DkimKeyRecord -match 'k=ed25519') {
 				Write-GoodNews "DKIM selector${Name}: The Ed25519 public key size is 256 bits."
 			}
@@ -581,128 +748,6 @@ Function Test-DmarcRecord
 	}
 }
 
-Function Test-BimiSelector
-{
-	[CmdletBinding()]
-	[OutputType([Void])]
-	[Alias('Test-BimiRecord')]
-	Param(
-		[Parameter(Mandatory, Position=0)]
-		[ValidateNotNullOrEmpty()]
-		[string] $DomainName,
-
-		[Parameter(Position=1)]
-		[Alias('Selector', 'SelectorName')]
-		[string] $Name = 'default'
-	)
-
-	$DnsLookup = Invoke-GooglePublicDnsApi "$Name._bimi.$DomainName" 'TXT' -Debug:$DebugPreference
-
-	If ($DnsLookup.PSObject.Properties.Name -NotContains 'Answer' -or $DnsLookup.Status -eq 3)
-	{
-		Write-Informational "BIMI selector ${Selector}: Not found!"
-		Return
-	}
-
-	If ($DnsLookup.AD) {
-		Write-GoodNews "BIMI selector ${Selector}: This DNS lookup is secure."
-	}
-	Else {
-		Write-BadPractice "BIMI selector ${Selector}: This DNS lookup is insecure. Enable DNSSEC for this domain."
-	}
-
-	$BimiRecord = ($DnsLookup.Answer | Where-Object type -eq 16).Data
-	If ($null -eq $BimiRecord)
-	{
-		Write-BadNews "BIMI selector ${Selector}: A record exists with no valid data!"
-		Return
-	}
-
-	ForEach ($token in ($BimiRecord -Split ';')) {
-		$token = $token.Trim()
-
-		If ($token -Eq "v=BIMI1") {
-			Write-GoodNews "BIMI selector ${Selector}: This is a BIMI version 1 record."
-		}
-
-		# BIMI evidence document tag
-		ElseIf ($token -Like "a=*") {
-			$policy = $token -Replace 'a='
-			If ($null -ne $policy) {
-				Write-GoodNews "BIMI selector ${Selector}: An authority evidence document can be found at $policy."
-			}
-			Else {
-				Write-Informational 'BIMI selector ${Selector}: No authority evidence is available.'
-			}
-		}
-		ElseIf ($token -Like "l=*") {
-			$locationURI = $token -Replace 'l='
-			If ($null -eq $locationURI) {
-				Write-Informational "BIMI selector ${Selector}: This domain does not participate in BIMI."
-			}
-			ElseIf ($locationURI -Like 'https://*') {
-				Write-GoodNews "BIMI selector ${Selector}: The brand indicator is at $locationURI."
-			}
-			Else {
-				Write-BadNews "BIMI selector ${Selector}: The brand indicator must be available over HTTPS! ($locationURI)"
-			}
-		}
-		ElseIf ($token.Length -gt 0) {
-			Write-BadNews "BIMI selector ${Selector}: An invalid tag was specified ($token)."
-		}
-	}
-}
-
-Function Test-MXRecord
-{
-	[CmdletBinding()]
-	[OutputType([Void])]
-	[Alias('Test-MXRecords', 'Test-NullMXRecord')]
-	Param(
-		[Parameter(Mandatory, Position=0)]
-		[ValidateNotNullOrEmpty()]
-		[string] $DomainName
-	)
-
-	$Results   = @()
-	$DnsLookup = Invoke-GooglePublicDnsApi $DomainName 'MX' -Debug:$DebugPreference
-
-	If ($DnsLookup.Status -eq 0)
-	{
-		($DnsLookup.Answer | Where-Object Type -eq 15).Data | ForEach-Object {
-			$Pref, $Server = $_ -Split "\s+"
-			$Results += @{"Preference"=[UInt16]$Pref; "Server"=$Server; "Implied"=$false}
-		}
-	}
-	ElseIf ($DnsLookup.PSObject.Properties.Name -NotContains 'Answer' -or $DnsLookup.Status -eq 3)
-	{
-		Write-BadPractice "MX: There are no MX records! This implies the domain will receive its own email."
-		$Results += @{"Preference"=0; "Server"=$DomainName; "Implied"=$true}
-	}
-
-	If ($DnsLookup.AD) {
-		Write-GoodNews "MX: This DNS lookup is secure."
-	}
-	Else {
-		Write-BadPractice "MX: This DNS lookup is insecure. Enable DNSSEC for this domain."
-	}
-
-	If ($Results.Count -eq 1 -and $Results[0].Server -eq '.') {
-		Write-Informational 'MX: This domain does not send or receive email.'
-		Return
-	}
-
-	$Results | Sort-Object Preference | ForEach-Object {
-		If ($_.Implied) {
-			Write-GoodNews "MX: This domain is its own MX server."
-		}
-		Else {
-			Write-GoodNews "MX: The server $($_.Server) can receive mail for this domain (at priority $($_.Preference))."
-		}
-		Test-IPVersions ($_.Server) -Indent
-	}
-}
-
 Function Test-MailPolicy
 {
 	[CmdletBinding()]
@@ -835,7 +880,7 @@ Function Test-MtaStsPolicy
 			ElseIf ($line -CLike 'mode: *') {
 				$mode = ($line -Split ':')[1].Trim()
 				If ($mode -Eq 'enforce') {
-					Write-GoodNews 'MTA-STS Policy: This domain enforces MTA-STS.  Senders must not deliver mail to hosts that fail MTA-STS or have invalid certificates.'
+					Write-GoodNews 'MTA-STS Policy: This domain enforces MTA-STS.  Senders must not deliver mail to hosts that do not offer STARTTLS with a valid, trusted certificate.'
 				} ElseIf ($mode -Eq 'testing') {
 					Write-Informational 'MTA-STS Policy: This domain is in testing mode.  MTA-STS failures will be reported, but the message will be delivered.'
 				} ElseIf ($mode -Eq 'none') {
@@ -866,6 +911,56 @@ Function Test-MtaStsPolicy
 				Write-BadNews "MTA-STS Policy: An unknown key/value pair was specified: $line"
 			}
 		}
+	}
+}
+
+Function Test-MXRecord
+{
+	[CmdletBinding()]
+	[OutputType([Void])]
+	[Alias('Test-MXRecords', 'Test-NullMXRecord')]
+	Param(
+		[Parameter(Mandatory, Position=0)]
+		[ValidateNotNullOrEmpty()]
+		[String] $DomainName
+	)
+
+	$Results   = @()
+	$DnsLookup = Invoke-GooglePublicDnsApi $DomainName 'MX' -Debug:$DebugPreference
+
+	If ($DnsLookup.Status -eq 0)
+	{
+		($DnsLookup.Answer | Where-Object Type -eq 15).Data | ForEach-Object {
+			$Pref, $Server = $_ -Split "\s+"
+			$Results += @{"Preference"=[UInt16]$Pref; "Server"=$Server; "Implied"=$false}
+		}
+	}
+	ElseIf ($DnsLookup.PSObject.Properties.Name -NotContains 'Answer' -or $DnsLookup.Status -eq 3)
+	{
+		Write-BadPractice "MX: There are no MX records! This implies the domain will receive its own email."
+		$Results += @{"Preference"=0; "Server"=$DomainName; "Implied"=$true}
+	}
+
+	If ($DnsLookup.AD) {
+		Write-GoodNews "MX: This DNS lookup is secure."
+	}
+	Else {
+		Write-BadPractice "MX: This DNS lookup is insecure. Enable DNSSEC for this domain."
+	}
+
+	If ($Results.Count -eq 1 -and $Results[0].Server -eq '.') {
+		Write-Informational 'MX: This domain does not send or receive email.'
+		Return
+	}
+
+	$Results | Sort-Object Preference | ForEach-Object {
+		If ($_.Implied) {
+			Write-GoodNews "MX: This domain is its own MX server."
+		}
+		Else {
+			Write-GoodNews "MX: The server $($_.Server) can receive mail for this domain (at priority $($_.Preference))."
+		}
+		Test-IPVersions ($_.Server) -Indent
 	}
 }
 
@@ -1403,96 +1498,4 @@ Function Test-SpfRecord
 		}
 	}
 	Return
-}
-
-Function Test-DaneRecord
-{
-	[CmdletBinding()]
-	[OutputType([Void])]
-	[Alias('Test-DaneRecords', 'Test-TlsaRecord', 'Test-TlsaRecords')]
-	Param(
-		[Parameter(Mandatory, Position=0)]
-		[ValidateNotNullOrEmpty()]
-		[String] $DomainName
-	)
-
-	# Fetch all MX records for this domain.  We won't do a DNSSEC check here,
-	# since we did that if the user entered here via Test-MailFlow.
-	$MXServers = @()
-	((Invoke-GooglePublicDnsApi $DomainName 'MX' -Debug:$DebugPreference).Answer `
-		| Where-Object type -eq 15).Data `
-		| ForEach-Object `
-	{
-		$Preference, $Name = $_ -Split "\s+"
-		$MXServers += @{'Preference'=[UInt16]$Preference; 'Server'=$Name}
-	}
-
-	If ($MXServers.Count -eq 1 -and $MXServers[0].Server -eq '.') {
-		Write-Verbose 'DANE: This domain does not receive email.'
-		Return
-	}
-
-	# Check for the confusing case where a domain has no MX servers, and does
-	# not publish a null MX record. In that case, the domain's A and AAAA records
-	# will be substituted as a mail exchanger with preference 0. (Really, that's
-	# what it says to do in the RFC.  Go look it up.)
-	#
-	# We're checking for a count of zero, or a count of one where the server
-	# name is blank, just in case I add options for other DNS APIs in the future.
-	# Google Public DNS's API returns the latter format.
-	If ($MXServers.Count -eq 0 -or ($MXServers.Count -eq 1 -and $null -eq $MXServers[0].Name))
-	{
-		$MXServers = @(@{'Preference'=0; 'Server'=$DomainName})
-	}
-
-	$MXServers | Sort-Object Preference | ForEach-Object {
-		# Strip the trailing dot, if present. This is done for display purposes.
-		$MXName = $_.Server -Replace '\.$'
-
-		$DnsLookup = Invoke-GooglePublicDnsApi "_25._tcp.$MXName" 'TLSA' -Debug:$DebugPreference
-		If ($DnsLookup.PSObject.Properties.Name -NotContains 'Answer' -or $DnsLookup.Status -eq 2 -or $DnsLookup.Status -eq 3)
-		{
-			Write-BadNews "DANE: DANE records are not present for $MXName, TCP port 25."
-			Return
-		}
-
-		If ($DnsLookup.AD) {
-			Write-GoodNews "DANE: ${MXName}: The DNS lookup is secure."
-		}
-		Else {
-			Write-BadNews "DANE: ${MXName}: The DNS lookup is insecure; the DANE records cannot be used!  Enable DNSSEC for this domain."
-			Return
-		}
-
-		($DnsLookup.Answer | Where-Object type -eq 52).Data | ForEach-Object {
-			$Usage, $Selector, $Type, $CertData = $_ -Split '\s+'
-
-			If ($Selector -NotIn 0,1) {
-				Write-BadNews "DANE: ${MXName}: The DANE record is invalid! (Unknown Selector $Selector)"
-				Continue
-			}
-			ElseIf ($Type -NotIn 0,1,2) {
-				Write-BadNews "DANE: ${MXName}: The DANE record is invalid! (Unknown Type $Selector)"
-				Continue
-			}
-
-			Switch ($Usage) {
-				0 {
-					Write-BadPractice "DANE: ${MXName}: Found a PKIX-TA record, which is not supported for SMTP: $Usage $Selector $Type $CertData (not checked)"
-				}
-				1 {
-					Write-BadPractice "DANE: ${MXName}: Found a PKIX-EE record, which is not supported for SMTP: $Usage $Selector $Type $CertData (not checked)"
-				}
-				2 {
-					Write-GoodNews "DANE: ${MXName}: Found a DANE-TA record: $Usage $Selector $Type $CertData (not checked)"
-				}
-				3 {
-					Write-GoodNews "DANE: ${MXName}: Found a DANE-EE record: $Usage $Selector $Type $CertData (not checked)"
-				}
-				default {
-					Write-BadNews "DANE: ${MXName}: The DANE record is invalid! (Unknown Usage $Usage)"
-				}
-			}
-		}
-	}
 }
