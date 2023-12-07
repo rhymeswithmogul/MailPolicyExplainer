@@ -1010,12 +1010,14 @@ Function Test-SmtpTlsReportingPolicy
 		Return
 	}
 
+	#region DNSSEC check
 	If ($DnsLookup.AD) {
 		Write-GoodNews "TLSRPT: This DNS lookup is secure."
 	}
 	Else {
 		Write-BadPractice "TLSRPT: This DNS lookup is insecure. Enable DNSSEC for this domain."
 	}
+	#endregion DNSSEC check
 
 	$TlsRptPolicy = ($DnsLookup.Answer | Where-Object type -eq 16).Data
 	If ($null -eq $TlsRptPolicy)
@@ -1024,16 +1026,25 @@ Function Test-SmtpTlsReportingPolicy
 		Return
 	}
 
-	$ruas = 0
-	ForEach ($token in ($TlsRptPolicy -Split ';')) {
+	# The "rua" tag must appear at least once, and the "v" tag must appear
+	# exactly once.  We'll count how many times we see each one.
+	$ruas     = 0
+	$versions = 0
+	
+	ForEach ($token in ($TlsRptPolicy -Split ';'))
+	{
 		$splits = $token -Split '='
-		$key = $splits[0].Trim()
-		$value = $splits[1].Trim()
+		$key    = $splits[0].Trim()
+		$value  = ''
+		If ($null -ne $splits[1]) {
+			$value = $splits[1].Trim()
+		}
 
 		If ($key -eq 'v')
 		{
 			If ($value -eq 'TLSRPTv1') {
 				Write-GoodNews 'TLSRPT: This is a version 1 policy.'
+				$versions++
 			} Else {
 				Write-BadNews "TLSRPT: This is an unsupported version ($value)!"
 			}
@@ -1047,6 +1058,9 @@ Function Test-SmtpTlsReportingPolicy
 		}
 	}
 
+	If ($versions -ne 1) {
+		Write-BadNews "TLSRPT: The required `"v`" tag did not appear exactly once.  (It appeared $versions times.)"
+	}
 	If ($ruas -eq 0) {
 		Write-BadNews 'TLSRPT: The required "rua" tag was not found!'
 	}

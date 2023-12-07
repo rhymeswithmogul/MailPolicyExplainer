@@ -8,6 +8,8 @@
 - **FIX** The DMARC `fo` token is now parsed correctly when multiple values are present.
 - **FIX** The DMARC `rf` token is now parsed correctly.
 - **FIX** The MTA-STS policy file test returns a better error message when the file does not have the correct CRLF line endings.
+- **FIX** The SMTP TLS reporting policy test now checks to make sure exactly one `v` tag is present with the value `TLSRPTv1`.
+- **FIX** The SMTP TLS reporting policy test now fails gracefully when invalid text is present.
 - **FIX** The SPF `exists` and `mx` token parsers no longer generate a spurious error when *not* counting DNS lookups.
 - **FIX** IntelliSense's handling of `Test-SpfRecord` has been improved by hiding some internal-use-only parameters.
 - **FIX** Cleaned up `Test-DaneRecords`' output.

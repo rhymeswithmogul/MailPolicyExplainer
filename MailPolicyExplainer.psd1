@@ -177,6 +177,8 @@ Many bugs were fixed, too:
 - The IntelliSense handling of `Test-SpfRecord` has been improved by hiding some internal-use-only parameters.
 - The IP version checks now work with implied MX records.
 - The MTA-STS policy file test returns a better error message when the file does not have the correct CRLF line endings.
+- The SMTP TLS reporting policy test now checks to make sure exactly one `v` tag is present with the value `TLSRPTv1`.
+- The SMTP TLS reporting policy test now fails gracefully when invalid text is returned.
 - The SPF `exists` and `mx` token parsers no longer generate a spurious error when not counting DNS lookups.
 - Cleaned up the output of `Test-DaneRecords` a little.
 - Miscellaneous code cleanup.
