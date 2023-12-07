@@ -1,7 +1,7 @@
 ---
 external help file: MailPolicyExplainer-help.xml
 Module Name: MailPolicyExplainer
-online version: online version: https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/Test-SpfRecord.md
+online version: https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/Test-SpfRecord.md
 schema: 2.0.0
 ---
 

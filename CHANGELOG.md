@@ -12,6 +12,7 @@
 - **FIX** The SMTP TLS reporting policy test now fails gracefully when invalid text is present.
 - **FIX** The SPF `exists` and `mx` token parsers no longer generate a spurious error when *not* counting DNS lookups.
 - **FIX** IntelliSense's handling of `Test-SpfRecord` has been improved by hiding some internal-use-only parameters.
+- **FIX** Online help is fixed for `Test-SmtpTlsReportingPolicy`, `Test-MtaStsPolicy`, and `Test-SpfRecord`.
 - **FIX** Cleaned up `Test-DaneRecords`' output.
 - **FIX** Miscellaneous code cleanup to improve future maintenance.
 

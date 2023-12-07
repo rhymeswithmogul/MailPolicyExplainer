@@ -180,6 +180,7 @@ Many bugs were fixed, too:
 - The SMTP TLS reporting policy test now checks to make sure exactly one `v` tag is present with the value `TLSRPTv1`.
 - The SMTP TLS reporting policy test now fails gracefully when invalid text is returned.
 - The SPF `exists` and `mx` token parsers no longer generate a spurious error when not counting DNS lookups.
+- Online help is fixed for `Test-SmtpTlsReportingPolicy`, `Test-MtaStsPolicy`, and `Test-SpfRecord`.
 - Cleaned up the output of `Test-DaneRecords` a little.
 - Miscellaneous code cleanup.
 '

@@ -1107,7 +1107,7 @@
     <command:relatedLinks>
       <maml:navigationLink>
         <maml:linkText>Online Version:</maml:linkText>
-        <maml:uri></maml:uri>
+        <maml:uri>https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/Test-MtaStsPolicy.md</maml:uri>
       </maml:navigationLink>
       <maml:navigationLink>
         <maml:linkText>Test-SmtpTlsReportingPolicy</maml:linkText>
@@ -1301,7 +1301,7 @@
     <command:relatedLinks>
       <maml:navigationLink>
         <maml:linkText>Online Version:</maml:linkText>
-        <maml:uri></maml:uri>
+        <maml:uri>https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/Test-SmtpTlsReportingPolicy.md</maml:uri>
       </maml:navigationLink>
       <maml:navigationLink>
         <maml:linkText>Test-MtaStsPolicy</maml:linkText>
@@ -1431,7 +1431,7 @@
     <command:relatedLinks>
       <maml:navigationLink>
         <maml:linkText>Online Version:</maml:linkText>
-        <maml:uri></maml:uri>
+        <maml:uri>https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/Test-SpfRecord.md</maml:uri>
       </maml:navigationLink>
       <maml:navigationLink>
         <maml:linkText>Test-DkimSelector</maml:linkText>
