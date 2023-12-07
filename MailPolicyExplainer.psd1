@@ -15,7 +15,7 @@ RootModule = 'src/MailPolicyExplainer.psm1'
 ModuleVersion = '1.3.1'
 
 # Supported PSEditions
-CompatiblePSEditions = @('Core', 'Desktop')
+CompatiblePSEditions = @('Core')
 
 # ID used to uniquely identify this module
 GUID = 'b3ec0108-05d3-43f1-a5ba-cc8f7f4cc8cc'
@@ -33,7 +33,7 @@ Copyright = '(c) 2018, 2020, 2023 Colin Cogle. All rights reserved.'
 Description = "Explains a domain's email DNS records, including MX, SPF, DKIM, DMARC, and more."
 
 # Minimum version of the Windows PowerShell engine required by this module
-PowerShellVersion = '5.1'
+PowerShellVersion = '7.3'
 
 # Name of the Windows PowerShell host required by this module
 # PowerShellHostName = ''
@@ -146,7 +146,7 @@ FileList = @(
 PrivateData = @{
 
 	PSData = @{
-		#Prerelease = 'git'
+		Prerelease = 'requires-ps7'
 
 		# Tags applied to this module. These help with module discovery in online galleries.
 		Tags = @(
@@ -154,7 +154,7 @@ PrivateData = @{
 			'TLSRPT', 'STARTTLS', 'domainkey', 'TLS', 'TLSA', 'ADSP',  'DNS', 'policy', 'SenderID',
 			'tester', 'Reporting', 'Test', 'Exchange', 'Office365', 'Google', 'Network', 'Cloud',
 			'security', 'audit', 'IPv4', 'IPv6', 'SMTP', 'RSA', 'Ed25519',
-			'Windows', 'MacOS', 'Linux', 'PSEdition_Core', 'PSEdition_Desktop'
+			'Windows', 'MacOS', 'Linux', 'PSEdition_Core'
 		)
 
 		# A URL to the license for this module.

@@ -99,28 +99,8 @@ Function Get-RSAPublicKeyLength
 	)
 
 	$rsa = [Security.Cryptography.RSACryptoServiceProvider]::new()
-
-	# .NET 7 adds the ImportFromPem method to instances of the RSA class.
-	# If it's available, use it.
-	If ($null -ne (Get-Member -InputObject $rsa | Where-Object Name -eq 'ImportFromPem'))
-	{
-		$rsa.ImportFromPem("-----BEGIN PUBLIC KEY-----`r`n$PublicKey`r`n-----END PUBLIC KEY-----")
-		Return $rsa.KeySize
-	}
-	# If we're using the older .NET Framework (Windows PowerShell), then we can
-	# only guess on the key length by looking at the size of the encoded data.
-	# If anyone knows a better way to make this work on .NET 6 and older, please
-	# submit a pull request!
-	Else {
-		Write-Verbose 'Accurate DKIM key length detection requires PowerShell 7.  We will do our best to guess.'
-		Switch ($PublicKey.Length) {
-			392		{Return 2048}
-			216		{Return 1024}
-			168		{Return 768}
-			128		{Return 512}
-			default	{Return 'unknown'}
-		}
-	}
+	$rsa.ImportFromPem("-----BEGIN PUBLIC KEY-----`r`n$PublicKey`r`n-----END PUBLIC KEY-----")
+	Return $rsa.KeySize
 }
 
 Function Test-IPv4Address
@@ -176,22 +156,13 @@ Function Invoke-GooglePublicDnsApi
 	}
 
 	Write-Verbose "Sending $($ToSend.random_padding.Length) characters of random padding."
-
-	# DNS-over-HTTPS requests are supposed to use HTTP/2 or newer.  However,
-	# Invoke-RestMethod's -HttpVersion parameter was added in PowerShell 7.3.
-	# Downlevel versions of PowerShell only used HTTP/1.1, which is thankfully
-	# supported by the Google Public DNS API.
-	#
-	# Thus, our code will attempt to use HTTP/3 if it's available, and fall back
-	# to the system default if not.
+	
 	$RequestParams = @{
-		'Method'  = 'GET'
-		'Uri'     = 'https://dns.google/resolve'
-		'Body'    = $ToSend
-		'Verbose' = $VerbosePreference
-	}
-	If ((Get-Command 'Invoke-RestMethod').Parameters.Keys -Contains 'HttpVersion') {
-		$RequestParams += @{'HttpVersion' = '3.0'}
+		'Method'      = 'GET'
+		'Uri'         = 'https://dns.google/resolve'
+		'Body'        = $ToSend
+		'Verbose'     = $VerbosePreference
+		'HttpVersion' = '3.0'	# DoH requires HTTP/2 or newer.
 	}
 
 	$result = Invoke-RestMethod @RequestParams
@@ -843,16 +814,13 @@ Function Test-MtaStsPolicy
 
 	Test-IPVersions "mta-sts.$DomainName"
 
-	$oldSP = [Net.ServicePointManager]::SecurityProtocol
 	Try {
-		[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls13
-		$policy = Invoke-WebRequest -Method GET -Uri "https://mta-sts.$DomainName/.well-known/mta-sts.txt" -ErrorAction Stop
+		$policy = Invoke-WebRequest -Method GET -Uri "https://mta-sts.$DomainName/.well-known/mta-sts.txt" -SslProtocol Tls13 -ErrorAction Stop
 		Write-GoodNews "MTA-STS Policy: Downloaded the policy file from mta-sts.$DomainName using TLS 1.3."
 	}
 	Catch {
 		Try {
-			[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-			$policy = Invoke-WebRequest -Method GET -Uri "https://mta-sts.$DomainName/.well-known/mta-sts.txt" -ErrorAction Stop
+			$policy = Invoke-WebRequest -Method GET -Uri "https://mta-sts.$DomainName/.well-known/mta-sts.txt" -SslProtocol Tls12 -ErrorAction Stop
 			Write-GoodNews "MTA-STS Policy: Downloaded the policy file from mta-sts.$DomainName using TLS 1.2."
 		}
 		Catch {
@@ -860,7 +828,6 @@ Function Test-MtaStsPolicy
 			Return
 		}
 	}
-	[Net.ServicePointManager]::SecurityProtocol = $oldSP
 
 	# It must be a text/plain document.
 	If (-Not ($policy.Headers.'Content-Type' -Match "^text/plain(;.*)?$")) {
@@ -1030,15 +997,12 @@ Function Test-SmtpTlsReportingPolicy
 	# exactly once.  We'll count how many times we see each one.
 	$ruas     = 0
 	$versions = 0
-	
+
 	ForEach ($token in ($TlsRptPolicy -Split ';'))
 	{
 		$splits = $token -Split '='
 		$key    = $splits[0].Trim()
-		$value  = ''
-		If ($null -ne $splits[1]) {
-			$value = $splits[1].Trim()
-		}
+		$value  = $splits[1]?.Trim()
 
 		If ($key -eq 'v')
 		{
