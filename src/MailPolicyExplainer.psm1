@@ -362,8 +362,10 @@ Function Test-DaneRecord
 	# Fetch all MX records for this domain.  We won't do a DNSSEC check here,
 	# since we did that if the user entered here via Test-MailFlow.
 	$MXServers = @()
-	((Invoke-GooglePublicDnsApi $DomainName 'MX' -Debug:$DebugPreference).Answer `
-		| Where-Object type -eq 15).Data `
+	Invoke-GooglePublicDnsApi $DomainName 'MX' -Debug:$DebugPreference
+		| Select-Object -ExpandProperty Answer `
+		| Where-Object type -eq 15 `
+		| Select-Object -ExpandProperty Data `
 		| ForEach-Object `
 	{
 		$Preference, $Name = $_ -Split "\s+"
@@ -787,7 +789,7 @@ Function Test-MailPolicy
 Function Test-MtaStsPolicy
 {
 	[CmdletBinding()]
-	[OutputType('Void')]
+	[OutputType([Void])]
 	[Alias('Test-MtaStsRecord')]
 	Param(
 		[Parameter(Mandatory, Position=0)]
@@ -841,18 +843,27 @@ Function Test-MtaStsPolicy
 		Return
 	}
 
+	#region Fetch the MTA-STS policy file.
+	# Connect to the remote server and download the file. We'll try with TLS 1.3
+	# first, then again with TLS 1.2.  (TLS version support depends on the host
+	# operating system and PowerShell version.)
 	Test-IPVersions "mta-sts.$DomainName"
 
 	$oldSP = [Net.ServicePointManager]::SecurityProtocol
+	$iwrParams = @{
+		'Method'      = 'GET'
+		'Uri'         = "https://mta-sts.$DomainName/.well-known/mta-sts.txt"
+		'ErrorAction' = 'Stop'
+	}
 	Try {
 		[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls13
-		$policy = Invoke-WebRequest -Method GET -Uri "https://mta-sts.$DomainName/.well-known/mta-sts.txt" -ErrorAction Stop
+		$policy = Invoke-WebRequest @iwrParams
 		Write-GoodNews "MTA-STS Policy: Downloaded the policy file from mta-sts.$DomainName using TLS 1.3."
 	}
 	Catch {
 		Try {
 			[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-			$policy = Invoke-WebRequest -Method GET -Uri "https://mta-sts.$DomainName/.well-known/mta-sts.txt" -ErrorAction Stop
+			$policy = Invoke-WebRequest @iwrParams
 			Write-GoodNews "MTA-STS Policy: Downloaded the policy file from mta-sts.$DomainName using TLS 1.2."
 		}
 		Catch {
@@ -861,7 +872,9 @@ Function Test-MtaStsPolicy
 		}
 	}
 	[Net.ServicePointManager]::SecurityProtocol = $oldSP
+	#endregion
 
+	#region Parse the downloaded file.
 	# It must be a text/plain document.
 	If (-Not ($policy.Headers.'Content-Type' -Match "^text/plain(;.*)?$")) {
 		Write-BadNews "MTA-STS Policy: It was found, but was returned with the wrong content type ($($policy.Headers.'Content-Type'))."
@@ -926,6 +939,7 @@ Function Test-MtaStsPolicy
 			}
 		}
 	}
+	#endregion
 }
 
 Function Test-MXRecord
@@ -1107,6 +1121,11 @@ Function Test-SpfRecord
 		}
 	}
 	
+	#region Fetch the SPF record.
+	# For historical reasons, we can also fetch Sender ID records.  That was
+	# Microsoft's failed attempt to make an "SPF 2.0".  It can operate on either
+	# of the two MailFrom headers, or both.  It never really took off.  Support
+	# for Sender ID may be removed from this module in the future.
 	$DnsLookup = Invoke-GooglePublicDnsApi "$DomainName" 'TXT' -Debug:$DebugPreference
 	If ($DnsLookup.PSObject.Properties.Name -NotContains 'Answer' -or $DnsLookup.Status -eq 3)
 	{
@@ -1125,18 +1144,21 @@ Function Test-SpfRecord
 		Write-BadNews "SPF: No SPF record was found."
 		Return
 	}
+	#endregion
 
 	# Add indentation when doing recursive SPF lookups.
 	If ($CountDnsLookups) {
 		$RecordType = "$('├──' * $Recursions.Value)$RecordType"
 	}
 
+	#region DNSSEC check
 	If ($DnsLookup.AD) {
 		Write-GoodNews "${RecordType}: This DNS lookup is secure."
 	}
 	Else {
 		Write-BadPractice "${RecordType}: This DNS lookup is insecure. Enable DNSSEC for this domain."
 	}
+	#endregion
 
 	Write-Verbose "Checking the $RecordType record: `"$SpfRecord`""
 	If ($DnssecSecured) {
@@ -1162,6 +1184,9 @@ Function Test-SpfRecord
 		}
 		#endregion
 
+		#region Check redirect modifier.
+		# If we're using the -CountDnsLookups/-Recurse parameter, this function
+		# will be recursive and check the redirected SPF record.
 		ElseIf ($token -Like 'redirect=*') {
 			$Domain = ($token -Split '=')[1]
 			If ($CountDnsLookups) {
@@ -1173,6 +1198,7 @@ Function Test-SpfRecord
 				Test-SpfRecord $Domain -CountDnsLookups:$CountDnsLookups -Recursions $Recursions -DnsLookups $DnsLookups
 			}
 		}
+		#endregion
 
 		#region Check A tokens.
 		ElseIf ($token -Match '^[\+\-\?\~]?a([:/]*)' -and $token -NotMatch "all$")
@@ -1458,6 +1484,8 @@ Function Test-SpfRecord
 		#endregion
 
 		#region Check include: tokens
+		# When running with the -CountDnsLookups/-Recurse parameter, the values
+		# of the "include:" tokens will be checked recursively.
 		ElseIf ($token -Match "^[\+\-\?\~]?include\:") {
 			If ($CountDnsLookups) {
 				$DnsLookups.Value++
@@ -1513,13 +1541,17 @@ Function Test-SpfRecord
 		}
 		#endregion
 
-		# This one does not count toward the ten DNS lookup limit of SPF.
+		#region Check the exp= modifier
+		# We will always attempt to resolve this and return the custom error
+		# message.  Note that this one does not count toward the ten DNS lookup
+		# limit of SPF.
 		ElseIf ($token -Like "exp=*")
 		{
 			$ExplanationRecord  = $token -Replace 'exp='
 			$ExplanationMessage = ((Invoke-GooglePublicDnsApi $ExplanationRecord 'TXT').Answer | Where-Object Type -eq 16).Data
 			Write-Informational "${RecordType}: Include this explanation with SPF failures: `"$ExplanationMessage`""
 		}
+		#endregion
 
 		ElseIf ($token.Length -gt 0) {
 			Write-BadNews "${RecordType}: PermError while processing the unknown token $token"
