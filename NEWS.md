@@ -1,5 +1,10 @@
 # MailPolicyExplainer News
 
+## Version 1.3.2
+This was released on Friday, December 8, 2023.
+
+This is a bugfix release.  Now, `Test-MtaStsPolicy` no longer misidentifies `mta-sts.txt` files with the correct CRLF line endings as malformed.  This was caused by a regression in version 1.3.1.
+
 ## Version 1.3.1
 This was released on Wednesday, December 6, 2023.
 

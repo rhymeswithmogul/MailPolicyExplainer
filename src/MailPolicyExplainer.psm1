@@ -849,11 +849,14 @@ Function Test-MtaStsPolicy
 	# operating system and PowerShell version.)
 	Test-IPVersions "mta-sts.$DomainName"
 
-	$oldSP = [Net.ServicePointManager]::SecurityProtocol
-	$iwrParams = @{
-		'Method'      = 'GET'
-		'Uri'         = "https://mta-sts.$DomainName/.well-known/mta-sts.txt"
-		'ErrorAction' = 'Stop'
+	$oldSP      = [Net.ServicePointManager]::SecurityProtocol
+	$ModuleInfo = (Get-Module 'MailPolicyExplainer')
+	$iwrParams  = @{
+		'Method'          = 'GET'
+		'Uri'             = "https://mta-sts.$DomainName/.well-known/mta-sts.txt"
+		'UseBasicParsing' = $true
+		'UserAgent'       = "Mozilla/5.0 ($($PSVersionTable.Platform); $($PSVersionTable.OS); $PSCulture) PowerShell/$($PSVersionTable.PSVersion) MailPolicyExplainer/$($ModuleInfo.Version)"
+		'ErrorAction'     = 'Stop'
 	}
 	Try {
 		[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls13
@@ -888,7 +891,8 @@ Function Test-MtaStsPolicy
 		$lines   = $policy.Content.Split("`r`n")
 		$LFlines = $policy.Content -Split "`r?`n"
 		
-		If ($lines -ne $LFLines) {
+		If ($lines.Count -ne $LFLines.Count) {
+			Write-Debug "This file has $($lines.Count) CRLF-terminated lines and $($LFlines.Count) LF-terminated lines."
 			Write-BadNews "MTA-STS Policy: The policy file does not have the correct CRLF line endings!"
 			Return
 		}

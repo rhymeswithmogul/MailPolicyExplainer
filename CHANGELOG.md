@@ -1,6 +1,9 @@
 # MailPolicyExplainer Change Log
 
-## Version 1.3.1 (Wednesday, December 9, 2023)
+## Version 1.3.2 (Friday, December 8, 2023)
+**FIX** `Test-MtaStsPolicy` no longer misidentifies `mta-sts.txt` files with the correct CRLF line endings as malformed.  This was caused by a regression in version 1.3.1.
+
+## Version 1.3.1 (Wednesday, December 6, 2023)
 - **FIX** Implied MX records are now displayed correctly.
 - **NEW** The IP version checks are now displayed with an indentation when run as a part of `Test-MailPolicy`.
 - **FIX** The IP version checks now work with implied MX records.
