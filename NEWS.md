@@ -1,5 +1,10 @@
 # MailPolicyExplainer News
 
+## Version 1.3.3
+This was released on Thursday, January 17, 2024.
+
+This is a bugfix release.  When no DANE records are present for a domain with a single MX host, `Test-DaneRecords` would erroneously report the domain name when it should have reported the MX server name.  For example, "DANE records are not present for contoso.com" instead of "DANE records are not present for mail.contoso.com".  The non-existence of DANE records was reported correctly, though the error message was confusing.
+
 ## Version 1.3.2
 This was released on Friday, December 8, 2023.
 

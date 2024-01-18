@@ -7,7 +7,7 @@
 RootModule = 'src/MailPolicyExplainer.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.3.2'
+ModuleVersion = '1.3.3'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Core', 'Desktop')
@@ -19,7 +19,7 @@ GUID = 'b3ec0108-05d3-43f1-a5ba-cc8f7f4cc8cc'
 Author = 'Colin Cogle'
 
 # Copyright statement for this module
-Copyright = '(c) 2018, 2020, 2023 Colin Cogle. All rights reserved.'
+Copyright = '(c) 2018, 2020, 2023-2024 Colin Cogle. All rights reserved.'
 
 # Description of the functionality provided by this module
 Description = "Explains a domain's email DNS records, including MX, SPF, DKIM, DMARC, and more."
@@ -112,7 +112,9 @@ PrivateData = @{
 		ProjectUri = 'https://github.com/rhymeswithmogul/MailPolicyExplainer'
 		IconUri = 'https://raw.githubusercontent.com/rhymeswithmogul/MailPolicyExplainer/main/icon/PSGallery.png'
 
-		ReleaseNotes = '`Test-MtaStsPolicy` no longer misidentifies `mta-sts.txt` files with the correct CRLF line endings as malformed.  This was caused by a regression in version 1.3.1.'
+		ReleaseNotes = 'This is a bugfix release.  When no DANE records are present for a domain with a single MX host, `Test-DaneRecords` would erroneously report the domain name when it should have reported the MX server name.
+
+For example, if the only MX record was pointing to mail.contoso.com, the old error message would have said "DANE records are not present for contoso.com" instead of "DANE records are not present for mail.contoso.com".'
 	}
 }
 

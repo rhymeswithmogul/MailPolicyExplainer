@@ -1,4 +1,4 @@
-﻿# This file is part of MailPolicyExplainer.
+# This file is part of MailPolicyExplainer.
 #
 # MailPolicyExplainer is free software: you can redistribute it and/or modify it
 # under the terms of the GNU Affero General Public License as published by the
@@ -39,7 +39,7 @@ Copy-Item -Path '*' -Destination $DestinationPath -Recurse -Exclude @(
 )
 Push-Location -Path $DestinationPath
 #endregion
-
+I 
 #region Sign all script files.
 # This portion of the script signs all files with my code signing certificate.
 # Since the command's default parameters are defined in my shell, and my private

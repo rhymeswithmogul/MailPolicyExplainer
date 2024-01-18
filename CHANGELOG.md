@@ -1,5 +1,8 @@
 # MailPolicyExplainer Change Log
 
+## Version 1.3.3 (Thursday, January 18, 2024)
+**FIX** When no DANE records are present for a domain with a single MX host, `Test-DaneRecords` would erroneously report the domain name when it should have reported the MX server name.
+
 ## Version 1.3.2 (Friday, December 8, 2023)
 **FIX** `Test-MtaStsPolicy` no longer misidentifies `mta-sts.txt` files with the correct CRLF line endings as malformed.  This was caused by a regression in version 1.3.1.
 

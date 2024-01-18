@@ -385,7 +385,7 @@ Function Test-DaneRecord
 	# We're checking for a count of zero, or a count of one where the server
 	# name is blank, just in case I add options for other DNS APIs in the future.
 	# Google Public DNS's API returns the latter format.
-	If ($MXServers.Count -eq 0 -or ($MXServers.Count -eq 1 -and $null -eq $MXServers[0].Name))
+	If ($MXServers.Count -eq 0)
 	{
 		$MXServers = @(@{'Preference'=0; 'Server'=$DomainName})
 	}
@@ -397,7 +397,7 @@ Function Test-DaneRecord
 		$DnsLookup = Invoke-GooglePublicDnsApi "_25._tcp.$MXName" 'TLSA' -Debug:$DebugPreference
 		If ($DnsLookup.PSObject.Properties.Name -NotContains 'Answer' -or $DnsLookup.Status -eq 2 -or $DnsLookup.Status -eq 3)
 		{
-			Write-BadNews "DANE: DANE records are not present for $MXName, TCP port 25."
+			Write-BadNews "DANE: DANE records are not present for ${MXName}, TCP port 25."
 			Return
 		}
 
