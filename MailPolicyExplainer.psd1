@@ -7,7 +7,7 @@
 RootModule = 'src/MailPolicyExplainer.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.3.3'
+ModuleVersion = '1.3.4'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Core', 'Desktop')
@@ -112,9 +112,7 @@ PrivateData = @{
 		ProjectUri = 'https://github.com/rhymeswithmogul/MailPolicyExplainer'
 		IconUri = 'https://raw.githubusercontent.com/rhymeswithmogul/MailPolicyExplainer/main/icon/PSGallery.png'
 
-		ReleaseNotes = 'This is a bugfix release.  When no DANE records are present for a domain with a single MX host, `Test-DaneRecords` would erroneously report the domain name when it should have reported the MX server name.
-
-For example, if the only MX record was pointing to mail.contoso.com, the old error message would have said "DANE records are not present for contoso.com" instead of "DANE records are not present for mail.contoso.com".'
+		ReleaseNotes = 'Some previous versions of this module failed to load on Windows PowerShell 5.1 due to a missing backtick.  PowerShell 7 considered this to be valid syntax.'
 	}
 }
 

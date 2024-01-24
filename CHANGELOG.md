@@ -1,5 +1,8 @@
 # MailPolicyExplainer Change Log
 
+## Version 1.3.4 (Wednesday, January 24, 2024)
+**FIX** Some previous versions of this module failed to load on Windows PowerShell 5.1 due to a missing backtick.  PowerShell 7 considered this to be valid syntax.  Thanks to Aslan Grealis for finding this bug.
+
 ## Version 1.3.3 (Thursday, January 18, 2024)
 **FIX** When no DANE records are present for a domain with a single MX host, `Test-DaneRecords` would erroneously report the domain name when it should have reported the MX server name.
 

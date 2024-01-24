@@ -362,7 +362,7 @@ Function Test-DaneRecord
 	# Fetch all MX records for this domain.  We won't do a DNSSEC check here,
 	# since we did that if the user entered here via Test-MailFlow.
 	$MXServers = @()
-	Invoke-GooglePublicDnsApi $DomainName 'MX' -Debug:$DebugPreference
+	Invoke-GooglePublicDnsApi $DomainName 'MX' -Debug:$DebugPreference `
 		| Select-Object -ExpandProperty Answer `
 		| Where-Object type -eq 15 `
 		| Select-Object -ExpandProperty Data `

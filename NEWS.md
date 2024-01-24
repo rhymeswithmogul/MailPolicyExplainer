@@ -1,5 +1,10 @@
 # MailPolicyExplainer News
 
+## Version 1.3.4
+This was released on Wednesday, January 24, 2024.
+
+This is a bugfix release.  Due to a tiny syntax error, this module was not loading on Windows PowerShell 5.1.  This has been corrected.  PowerShell 7 was not affected.  Thank you to Aslan Grealis for pointing this out.
+
 ## Version 1.3.3
 This was released on Thursday, January 17, 2024.
 
