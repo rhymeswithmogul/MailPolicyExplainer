@@ -91,7 +91,7 @@ FileList = @(
 )
 
 # Private data to pass to the module specified in RootModule/ModuleToProcess.
-# This may also contain a PSData hashtable with additional module metadata used 
+# This may also contain a PSData hashtable with additional module metadata used
 # by PowerShell.
 PrivateData = @{
 	PSData = @{

@@ -56,6 +56,7 @@ Function Write-Informational
 
 Function Write-DnsLookups
 {
+	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns', '', Justification='We are counting multiple lookups.')]
 	[OutputType([String])]
 	Param(
 		[Parameter(Mandatory, Position=0)]
@@ -757,7 +758,7 @@ Function Test-MailPolicy
 	Param(
 		[Parameter(Mandatory, Position=0)]
 		[String] $DomainName,
-		
+
 		[Alias('Recurse')]
 		[Switch] $CountSpfDnsLookups,
 
@@ -890,14 +891,14 @@ Function Test-MtaStsPolicy
 		# We're going to be strict and refuse to parse the file in this case.
 		$lines   = $policy.Content.Split("`r`n")
 		$LFlines = $policy.Content -Split "`r?`n"
-		
+
 		If ($lines.Count -ne $LFLines.Count) {
 			Write-Debug "This file has $($lines.Count) CRLF-terminated lines and $($LFlines.Count) LF-terminated lines."
 			Write-BadNews "MTA-STS Policy: The policy file does not have the correct CRLF line endings!"
 			Return
 		}
 		#endregion
-		
+
 		$lines | ForEach-Object {
 			$line = $_.Trim()
 			If ($line -CLike 'version: *') {
@@ -1048,7 +1049,7 @@ Function Test-SmtpTlsReportingPolicy
 	# exactly once.  We'll count how many times we see each one.
 	$ruas     = 0
 	$versions = 0
-	
+
 	ForEach ($token in ($TlsRptPolicy -Split ';'))
 	{
 		$splits = $token -Split '='
@@ -1124,7 +1125,7 @@ Function Test-SpfRecord
 			$Recursions.Value++
 		}
 	}
-	
+
 	#region Fetch the SPF record.
 	# For historical reasons, we can also fetch Sender ID records.  That was
 	# Microsoft's failed attempt to make an "SPF 2.0".  It can operate on either
@@ -1210,7 +1211,7 @@ Function Test-SpfRecord
 			If ($CountDnsLookups) {
 				$DnsLookups.Value++
 			}
-			
+
 			If ($token -Match "^\+?a$") {
 				Write-GoodNews "${RecordType}: Accept mail from $DomainName's IP address(es).$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
 			}
