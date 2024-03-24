@@ -481,6 +481,9 @@ Function Test-DkimSelector
 		Write-BadNews "DKIM selector${Name}: This selector was not found in DNS."
 		Return
 	}
+	Else {
+		Write-Verbose "DKIM selector${Name}: `"$DkimKeyRecord`""
+	}
 
 	#region Check for default values.
 	# If there is no "k=" token, it's assumed to be "k=rsa" (per the RFC).
