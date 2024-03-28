@@ -1,9 +1,11 @@
 # MailPolicyExplainer News
 
-## Version 1.3.5
+## Version 1.4.0
 This will be released soon.
 
-This is a bugfix release.  The SPF parser would sometimes show IPv4 addresses with a character prepended;  for example, "Accept mail from the IPv4 address +192.0.2.1" or "Reject mail from the IPv4 address -192.0.2.2".  This has been corrected by fixing the parser.
+One new feaure.  `Test-DkimRecord` will print the full DKIM TXT record to the verbose stream (i.e., the one that's visible when using `-Verbose` or setting the appropriate `$VerbosePreference` value).  Thanks to [Jason Berry](https://github.com/skyblaster) for writing [the pull request](https://github.com/rhymeswithmogul/MailPolicyExplainer/pull/1)!
+
+One bug was fixed.  The SPF parser would sometimes show IPv4 addresses with a character prepended;  for example, "Accept mail from the IPv4 address +192.0.2.1" or "Reject mail from the IPv4 address -192.0.2.2".  This has been corrected by fixing the parser.
 
 ## Version 1.3.4
 This was released on Wednesday, January 24, 2024.

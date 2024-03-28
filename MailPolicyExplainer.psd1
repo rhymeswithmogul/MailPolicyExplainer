@@ -7,7 +7,7 @@
 RootModule = 'src/MailPolicyExplainer.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.3.5'
+ModuleVersion = '1.4.0'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Core', 'Desktop')
@@ -112,7 +112,8 @@ PrivateData = @{
 		ProjectUri = 'https://github.com/rhymeswithmogul/MailPolicyExplainer'
 		IconUri = 'https://raw.githubusercontent.com/rhymeswithmogul/MailPolicyExplainer/main/icon/PSGallery.png'
 
-		ReleaseNotes = 'Removed the `ip4:` qualifier from parser output.'
+		ReleaseNotes = '- Test-DkimRecord will emit the full DKIM TXT record to the verbose stream.
+- Removed the `ip4:` qualifier from parser output.'
 	}
 }
 
