@@ -1390,7 +1390,7 @@ Function Test-SpfRecord
 					Return
 				}
 			} Else {
-				$ip4addr = $token -Replace 'ip4:' -Replace '/32'
+				$ip4addr = $token -Replace '[\+\-\~\?]?ip4:' -Replace '/32'
 				If ($token -Match "^\+?ip4:.*") {
 					Write-GoodNews "${RecordType}: Accept mail from the IPv4 address $ip4addr."
 				}

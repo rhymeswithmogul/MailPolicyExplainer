@@ -1,5 +1,10 @@
 # MailPolicyExplainer News
 
+## Version 1.3.5
+This will be released soon.
+
+This is a bugfix release.  The SPF parser would sometimes show IPv4 addresses with a character prepended;  for example, "Accept mail from the IPv4 address +192.0.2.1" or "Reject mail from the IPv4 address -192.0.2.2".  This has been corrected by fixing the parser.
+
 ## Version 1.3.4
 This was released on Wednesday, January 24, 2024.
 

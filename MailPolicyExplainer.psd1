@@ -7,7 +7,7 @@
 RootModule = 'src/MailPolicyExplainer.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.3.4'
+ModuleVersion = '1.3.5'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Core', 'Desktop')
@@ -95,7 +95,7 @@ FileList = @(
 # by PowerShell.
 PrivateData = @{
 	PSData = @{
-		#Prerelease = 'git'
+		Prerelease = 'git'
 
 		# Tags applied to this module.
 		# These help with module discovery in online galleries.
@@ -112,7 +112,7 @@ PrivateData = @{
 		ProjectUri = 'https://github.com/rhymeswithmogul/MailPolicyExplainer'
 		IconUri = 'https://raw.githubusercontent.com/rhymeswithmogul/MailPolicyExplainer/main/icon/PSGallery.png'
 
-		ReleaseNotes = 'Some previous versions of this module failed to load on Windows PowerShell 5.1 due to a missing backtick.  PowerShell 7 considered this to be valid syntax.'
+		ReleaseNotes = 'Removed the `ip4:` qualifier from parser output.'
 	}
 }
 

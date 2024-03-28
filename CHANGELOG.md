@@ -1,5 +1,8 @@
 # MailPolicyExplainer Change Log
 
+## Version 1.3.5
+**FIX** The SPF qualifier is no longer prepended to IPv4 addresses.
+
 ## Version 1.3.4 (Wednesday, January 24, 2024)
 **FIX** Some previous versions of this module failed to load on Windows PowerShell 5.1 due to a missing backtick.  PowerShell 7 considered this to be valid syntax.  Thanks to Aslan Grealis for finding this bug.
 
