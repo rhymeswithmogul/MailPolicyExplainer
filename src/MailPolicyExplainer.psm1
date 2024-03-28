@@ -162,16 +162,25 @@ Function Invoke-GooglePublicDnsApi
 
 		[Parameter(Position=1)]
 		[ValidateSet('A', 'AAAA', 'CNAME', 'MX', 'SPF', 'TLSA', 'TXT')]
-		[String] $Type = 'A'
+		[String] $Type = 'A',
+
+		[Alias('CD', 'DnssecCD', 'NoDnssec', 'DisableDnssec')]
+		[Switch] $DisableDnssecVerification
 	)
 
 	$MaxLengthOfPadding = 1958 - $InputObject.Length - $Type.Length
+
+	If ($DisableDnssecVerification) {
+		$CD = 1
+	} Else {
+		$CD = 0
+	}
 
 	$ToSend = @{
 		'name'           = $InputObject
 		'type'           = $Type
 		'ct'             = 'application/x-javascript'
-		'cd'             = 0	# enable DNSSEC validation...
+		'cd'             = $CD	# enable DNSSEC validation (by default)...
 		'do'             = 0	# ...but don't return RRSIGs. Trust the resolver.
 		'random_padding' = Get-RandomString -MaxLength $MaxLengthOfPadding -MinLength $MaxLengthOfPadding
 	}
@@ -241,10 +250,13 @@ Function Test-AdspRecord
 	Param(
 		[Parameter(Mandatory, Position=0)]
 		[ValidateNotNullOrEmpty()]
-		[string] $DomainName
+		[string] $DomainName,
+
+		[Alias('CD', 'DnssecCD', 'NoDnssec', 'DisableDnssec')]
+		[Switch] $DisableDnssecVerification
 	)
 
-	$DnsLookup = Invoke-GooglePublicDnsApi "_adsp._domainkey.$DomainName" 'TXT' -Debug:$DebugPreference
+	$DnsLookup = Invoke-GooglePublicDnsApi "_adsp._domainkey.$DomainName" 'TXT' -Debug:$DebugPreference -DisableDnssecVerification:$DisableDnssecVerification
 	$ADSPRecordFound = $DnsLookup.PSObject.Properties.Name -Contains 'Answer' -and $DnsLookup.Status -ne 3
 
 	#region DNSSEC check
@@ -252,7 +264,7 @@ Function Test-AdspRecord
 	# of existence to show up when using Test-MailPolicy.  Only show the DNSSEC
 	# information when calling this function directly, or if there is an ADSP
 	# record to display.
-	If ($ADSPRecordFound -or ((Get-PSCallStack).Command)[1] -ne 'Test-MailPolicy')
+	If (-Not $DisableDnssecVerification -and ($ADSPRecordFound -or ((Get-PSCallStack).Command)[1] -ne 'Test-MailPolicy'))
 	{
 		If ($DnsLookup.AD) {
 			Write-GoodNews "DKIM ADSP: This DNS lookup is secure."
@@ -299,17 +311,22 @@ Function Test-BimiSelector
 
 		[Parameter(Position=1)]
 		[Alias('Selector', 'SelectorName')]
-		[string] $Name = 'default'
+		[string] $Name = 'default',
+
+		[Alias('CD', 'DnssecCD', 'NoDnssec', 'DisableDnssec')]
+		[Switch] $DisableDnssecVerification
 	)
 
-	$DnsLookup = Invoke-GooglePublicDnsApi "$Name._bimi.$DomainName" 'TXT' -Debug:$DebugPreference
+	$DnsLookup = Invoke-GooglePublicDnsApi "$Name._bimi.$DomainName" 'TXT' -Debug:$DebugPreference -DisableDnssecVerification:$DisableDnssecVerification
 
 	#region DNSSEC check
-	If ($DnsLookup.AD) {
-		Write-GoodNews "BIMI selector ${Selector}: This DNS lookup is secure."
-	}
-	Else {
-		Write-BadPractice "BIMI selector ${Selector}: This DNS lookup is insecure. Enable DNSSEC for this domain."
+	If (-Not $DisableDnssecVerification) {
+		If ($DnsLookup.AD) {
+			Write-GoodNews "BIMI selector ${Selector}: This DNS lookup is secure."
+		}
+		Else {
+			Write-BadPractice "BIMI selector ${Selector}: This DNS lookup is insecure. Enable DNSSEC for this domain."
+		}
 	}
 	#endregion
 
@@ -369,11 +386,14 @@ Function Test-DaneRecord
 	Param(
 		[Parameter(Mandatory, Position=0)]
 		[ValidateNotNullOrEmpty()]
-		[String] $DomainName
+		[String] $DomainName,
+
+		[Parameter(DontShow)]
+		[Alias('CD', 'DnssecCD', 'NoDnssec', 'DisableDnssec')]
+		[Switch] $DisableDnssecVerification
 	)
 
-	# Fetch all MX records for this domain.  We won't do a DNSSEC check here,
-	# since we did that if the user entered here via Test-MailFlow.
+	# Fetch all MX records for this domain.
 	$MXServers = @()
 	Invoke-GooglePublicDnsApi $DomainName 'MX' -Debug:$DebugPreference `
 		| Select-Object -ExpandProperty Answer `
@@ -408,18 +428,32 @@ Function Test-DaneRecord
 		$MXName = $_.Server -Replace '\.$'
 
 		$DnsLookup = Invoke-GooglePublicDnsApi "_25._tcp.$MXName" 'TLSA' -Debug:$DebugPreference
+		$FoundDANERecords = ($DnsLookup.PSObject.Properties.Name -Contains 'Answer') -and ($DnsLookup.Status -ne 2) -and ($DnsLookup.Status -ne 3)
 
 		#region DNSSEC check
-		If ($DnsLookup.AD) {
-			Write-GoodNews "DANE: ${MXName}: The DNS lookup is secure."
-		}
-		Else {
-			Write-BadNews "DANE: ${MXName}: The DNS lookup is insecure; the DANE records cannot be used!  Enable DNSSEC for this domain."
-			Return
+		# Complain if the user attempted to disable DNSSEC checking.  That's a
+		# requirement for DANE.  Politely refuse to honor the user's request and
+		# check DNSSEC anyway. This will only happen if the user is entering
+		# this function call via Test-MailPolicy.
+		If ($FoundDANERecords)
+		{
+			If ($DisableDnssecVerification -and -not $ShowedDnssecWarning)
+			{
+				Write-Informational 'DANE: Records must be signed with DNSSEC. Validating DNSSEC anyway.'
+				$ShowedDnssecWarning = $true
+			}
+
+			If ($DnsLookup.AD) {
+				Write-GoodNews "DANE: ${MXName}: The DNS lookup is secure."
+			}
+			Else {
+				Write-BadNews "DANE: ${MXName}: The DNS lookup is insecure; the DANE records cannot be used!  Enable DNSSEC for this domain."
+				Return
+			}
 		}
 		#endregion
 
-		If ($DnsLookup.PSObject.Properties.Name -NotContains 'Answer' -or $DnsLookup.Status -eq 2 -or $DnsLookup.Status -eq 3)
+		If (-Not $FoundDANERecords)
 		{
 			Write-BadNews "DANE: DANE records are not present for ${MXName}, TCP port 25."
 			Return
@@ -470,18 +504,23 @@ Function Test-DkimSelector
 
 		[Parameter(Mandatory, Position=1)]
 		[Alias('Selector', 'SelectorName', 'KeyName')]
-		[string]$Name
+		[string]$Name,
+
+		[Alias('CD', 'DnssecCD', 'NoDnssec', 'DisableDnssec')]
+		[Switch] $DisableDnssecVerification
 	)
 
-	$DnsLookup = Invoke-GooglePublicDnsApi "$Name._domainkey.$DomainName" 'TXT' -Debug:$DebugPreference
+	$DnsLookup = Invoke-GooglePublicDnsApi "$Name._domainkey.$DomainName" 'TXT' -Debug:$DebugPreference -DisableDnssecVerification:$DisableDnssecVerification
 	$Name = " $Name"
 
 	#region DNSSEC check
-	If ($DnsLookup.AD) {
-		Write-GoodNews "DKIM selector${Name}: This DNS lookup is secure."
-	}
-	Else {
-		Write-BadPractice "DKIM selector${Name}: This DNS lookup is insecure. Enable DNSSEC for this domain."
+	If (-Not $DisableDnssecVerification) {
+		If ($DnsLookup.AD) {
+			Write-GoodNews "DKIM selector${Name}: This DNS lookup is secure."
+		}
+		Else {
+			Write-BadPractice "DKIM selector${Name}: This DNS lookup is insecure. Enable DNSSEC for this domain."
+		}
 	}
 	#endregion
 
@@ -633,17 +672,22 @@ Function Test-DmarcRecord
 	Param(
 		[Parameter(Mandatory, Position=0)]
 		[ValidateNotNullOrEmpty()]
-		[string] $DomainName
+		[string] $DomainName,
+
+		[Alias('CD', 'DnssecCD', 'NoDnssec', 'DisableDnssec')]
+		[Switch] $DisableDnssecVerification
 	)
 
-	$DnsLookup = Invoke-GooglePublicDnsApi "_dmarc.$DomainName" 'TXT' -Debug:$DebugPreference
+	$DnsLookup = Invoke-GooglePublicDnsApi "_dmarc.$DomainName" 'TXT' -Debug:$DebugPreference -DisableDnssecVerification:$DisableDnssecVerification
 
 	#region DNSSEC check
-	If ($DnsLookup.AD) {
-		Write-GoodNews "DMARC: This DNS lookup is secure."
-	}
-	Else {
-		Write-BadPractice "DMARC: This DNS lookup is insecure. Enable DNSSEC for this domain."
+	If (-Not $DisableDnssecVerification) {
+		If ($DnsLookup.AD) {
+			Write-GoodNews "DMARC: This DNS lookup is secure."
+		}
+		Else {
+			Write-BadPractice "DMARC: This DNS lookup is insecure. Enable DNSSEC for this domain."
+		}
 	}
 	#endregion
 
@@ -785,27 +829,30 @@ Function Test-MailPolicy
 
 		[String[]] $DkimSelectorsToCheck,
 
-		[String[]] $BimiSelectorsToCheck
+		[String[]] $BimiSelectorsToCheck,
+
+		[Alias('CD', 'DnssecCD', 'NoDnssec', 'DisableDnssec')]
+		[Switch] $DisableDnssecVerification
 	)
 
 	Write-Output "Analyzing email records for $DomainName"
-	Test-MXRecord $DomainName
-	Test-SpfRecord $DomainName -Recurse:$CountSpfDnsLookups
+	Test-MXRecord $DomainName -DisableDnssecVerification:$DisableDnssecVerification
+	Test-SpfRecord $DomainName -Recurse:$CountSpfDnsLookups -DisableDnssecVerification:$DisableDnssecVerification
 	If ($DkimSelectorsToCheck.Count -gt 0) {
 		$DkimSelectorsToCheck | ForEach-Object {
-			Test-DkimSelector $DomainName -Name $_
+			Test-DkimSelector $DomainName -Name $_ -DisableDnssecVerification:$DisableDnssecVerification
 		}
 	}
-	Test-ADSPRecord $DomainName
-	Test-DmarcRecord $DomainName
+	Test-ADSPRecord $DomainName -DisableDnssecVerification:$DisableDnssecVerification
+	Test-DmarcRecord $DomainName -DisableDnssecVerification:$DisableDnssecVerification
 	If ($BimiSelectorsToCheck.Count -gt 0) {
 		$BimiSelectorsToCheck | ForEach-Object {
-			Test-BimiSelector $DomainName -Name $_
+			Test-BimiSelector $DomainName -Name $_ -DisableDnssecVerification:$DisableDnssecVerification
 		}
 	}
-	Test-MtaStsPolicy $DomainName
-	Test-SmtpTlsReportingPolicy $DomainName
-	Test-DaneRecord $DomainName
+	Test-MtaStsPolicy $DomainName -DisableDnssecVerification:$DisableDnssecVerification
+	Test-SmtpTlsReportingPolicy $DomainName -DisableDnssecVerification:$DisableDnssecVerification
+	Test-DaneRecord $DomainName -DisableDnssecVerification:$DisableDnssecVerification
 }
 
 Function Test-MtaStsPolicy
@@ -815,17 +862,22 @@ Function Test-MtaStsPolicy
 	[Alias('Test-MtaStsRecord')]
 	Param(
 		[Parameter(Mandatory, Position=0)]
-		[String] $DomainName
+		[String] $DomainName,
+
+		[Alias('CD', 'DnssecCD', 'NoDnssec', 'DisableDnssec')]
+		[Switch] $DisableDnssecVerification
 	)
 
-	$DnsLookup = Invoke-GooglePublicDnsApi "_mta-sts.$DomainName" 'TXT' -Debug:$DebugPreference
+	$DnsLookup = Invoke-GooglePublicDnsApi "_mta-sts.$DomainName" 'TXT' -Debug:$DebugPreference -DisableDnssecVerification:$DisableDnssecVerification
 
 	#region DNSSEC check
-	If ($DnsLookup.AD) {
-		Write-GoodNews "MTA-STS Record: This DNS lookup is secure."
-	}
-	Else {
-		Write-BadPractice "MTA-STS Record: This DNS lookup is insecure. Enable DNSSEC for this domain."
+	If (-Not $DisableDnssecVerification) {
+		If ($DnsLookup.AD) {
+			Write-GoodNews "MTA-STS Record: This DNS lookup is secure."
+		}
+		Else {
+			Write-BadPractice "MTA-STS Record: This DNS lookup is insecure. Enable DNSSEC for this domain."
+		}
 	}
 	#endregion
 
@@ -978,18 +1030,23 @@ Function Test-MXRecord
 	Param(
 		[Parameter(Mandatory, Position=0)]
 		[ValidateNotNullOrEmpty()]
-		[String] $DomainName
+		[String] $DomainName,
+
+		[Alias('CD', 'DnssecCD', 'NoDnssec', 'DisableDnssec')]
+		[Switch] $DisableDnssecVerification
 	)
 
 	$Results   = @()
-	$DnsLookup = Invoke-GooglePublicDnsApi $DomainName 'MX' -Debug:$DebugPreference
+	$DnsLookup = Invoke-GooglePublicDnsApi $DomainName 'MX' -Debug:$DebugPreference -DisableDnssecVerification:$DisableDnssecVerification
 
 	#region DNSSEC check
-	If ($DnsLookup.AD) {
-		Write-GoodNews "MX: This DNS lookup is secure."
-	}
-	Else {
-		Write-BadPractice "MX: This DNS lookup is insecure. Enable DNSSEC for this domain."
+	If (-Not $DisableDnssecVerification) {
+		If ($DnsLookup.AD) {
+			Write-GoodNews "MX: This DNS lookup is secure."
+		}
+		Else {
+			Write-BadPractice "MX: This DNS lookup is insecure. Enable DNSSEC for this domain."
+		}
 	}
 	#endregion DNSSEC check
 
@@ -1038,17 +1095,22 @@ Function Test-SmtpTlsReportingPolicy
 	Param(
 		[Parameter(Mandatory, Position=0)]
 		[ValidateNotNullOrEmpty()]
-		[string] $DomainName
+		[string] $DomainName,
+
+		[Alias('CD', 'DnssecCD', 'NoDnssec', 'DisableDnssec')]
+		[Switch] $DisableDnssecVerification
 	)
 
-	$DnsLookup = Invoke-GooglePublicDnsApi "_smtp._tls.$DomainName" 'TXT' -Debug:$DebugPreference
+	$DnsLookup = Invoke-GooglePublicDnsApi "_smtp._tls.$DomainName" 'TXT' -Debug:$DebugPreference -DisableDnssecVerification:$DisableDnssecVerification
 
 	#region DNSSEC check
-	If ($DnsLookup.AD) {
-		Write-GoodNews "TLSRPT: This DNS lookup is secure."
-	}
-	Else {
-		Write-BadPractice "TLSRPT: This DNS lookup is insecure. Enable DNSSEC for this domain."
+	If (-Not $DisableDnssecVerification) {
+		If ($DnsLookup.AD) {
+			Write-GoodNews "TLSRPT: This DNS lookup is secure."
+		}
+		Else {
+			Write-BadPractice "TLSRPT: This DNS lookup is insecure. Enable DNSSEC for this domain."
+		}
 	}
 	#endregion DNSSEC check
 	
@@ -1123,6 +1185,9 @@ Function Test-SpfRecord
 		[Alias('Recurse', 'CountSpfDnsLookups')]
 		[Switch] $CountDnsLookups,
 
+		[Alias('CD', 'DnssecCD', 'NoDnssec', 'DisableDnssec')]
+		[Switch] $DisableDnssecVerification,
+
 		[Parameter(DontShow)]
 		[ref] $Recursions,
 
@@ -1140,7 +1205,7 @@ Function Test-SpfRecord
 		{
 			$r = -1		# it will be incremented to zero on the first run.
 			$d = 0
-			Test-SpfRecord -DomainName $DomainName -CountDnsLookups:$CountDnsLookups -Recursions ([ref]$r) -DnsLookups ([ref]$d)
+			Test-SpfRecord -DomainName $DomainName -CountDnsLookups:$CountDnsLookups -DisableDnssecVerification:$DisableDnssecVerification -Recursions ([ref]$r) -DnsLookups ([ref]$d)
 			Return	# do not recurse
 		}
 		Else {
@@ -1155,7 +1220,7 @@ Function Test-SpfRecord
 	# Microsoft's failed attempt to make an "SPF 2.0".  It can operate on either
 	# of the two MailFrom headers, or both.  It never really took off.  Support
 	# for Sender ID may be removed from this module in the future.
-	$DnsLookup = Invoke-GooglePublicDnsApi "$DomainName" 'TXT' -Debug:$DebugPreference
+	$DnsLookup = Invoke-GooglePublicDnsApi "$DomainName" 'TXT' -Debug:$DebugPreference -DisableDnssecVerification:$DisableDnssecVerification
 	$NoSPF = $false
 
 	$SpfRecord = ($DnsLookup.Answer | Where-Object type -eq 16).Data | Where-Object {$_ -CLike "v=spf1 *" -or $_ -CLike "spf2.0/*"}
@@ -1177,11 +1242,13 @@ Function Test-SpfRecord
 	#endregion
 
 	#region DNSSEC check
-	If ($DnsLookup.AD) {
-		Write-GoodNews "${RecordType}: This DNS lookup is secure."
-	}
-	Else {
-		Write-BadPractice "${RecordType}: This DNS lookup is insecure. Enable DNSSEC for this domain."
+	If (-Not $DisableDnssecVerification) {
+		If ($DnsLookup.AD) {
+			Write-GoodNews "${RecordType}: This DNS lookup is secure."
+		}
+		Else {
+			Write-BadPractice "${RecordType}: This DNS lookup is insecure. Enable DNSSEC for this domain."
+		}
 	}
 	#endregion
 
@@ -1226,7 +1293,7 @@ Function Test-SpfRecord
 
 			Write-Informational "${RecordType}: Use the SPF record at $Domain instead.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
 			If ($CountDnsLookups) {
-				Test-SpfRecord $Domain -CountDnsLookups:$CountDnsLookups -Recursions $Recursions -DnsLookups $DnsLookups
+				Test-SpfRecord $Domain -CountDnsLookups:$CountDnsLookups -DisableDnssecVerification:$DisableDnssecVerification -Recursions $Recursions -DnsLookups $DnsLookups
 			}
 		}
 		#endregion
@@ -1526,25 +1593,25 @@ Function Test-SpfRecord
 			If ($token -Match "^\+?include:*") {
 				Write-GoodNews "${RecordType}: Accept mail that passes the SPF record at $nextRecord.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
 				If ($CountDnsLookups) {
-					Test-SpfRecord -DomainName $NextRecord -CountDnsLookups:$CountDnsLookups -Recursions $Recursions -DnsLookups $DnsLookups
+					Test-SpfRecord -DomainName $NextRecord -CountDnsLookups:$CountDnsLookups -DisableDnssecVerification:$DisableDnssecVerification -Recursions $Recursions -DnsLookups $DnsLookups
 				}
 			}
 			ElseIf ($token -Like "-include:*") {
 				Write-GoodNews "${RecordType}: Reject mail that passes the SPF record at $NextRecord.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
 				If ($CountDnsLookups) {
-					Test-SpfRecord -DomainName $NextRecord -CountDnsLookups:$CountDnsLookups -Recursions $Recursions -DnsLookups $DnsLookups
+					Test-SpfRecord -DomainName $NextRecord -CountDnsLookups:$CountDnsLookups -DisableDnssecVerification:$DisableDnssecVerification -Recursions $Recursions -DnsLookups $DnsLookups
 				}
 			}
 			ElseIf ($token -Like "~include:*") {
 				Write-BadPractice "${RecordType}: Accept but mark mail that passes the SPF record at $NextRecord.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
 				If ($CountDnsLookups) {
-					Test-SpfRecord -DomainName $NextRecord -CountDnsLookups:$CountDnsLookups -Recursions $Recursions -DnsLookups $DnsLookups
+					Test-SpfRecord -DomainName $NextRecord -CountDnsLookups:$CountDnsLookups -DisableDnssecVerification:$DisableDnssecVerification -Recursions $Recursions -DnsLookups $DnsLookups
 				}
 			}
 			ElseIf ($token -Like "?include:*") {
 				Write-BadPractice "${RecordType}: No opinion on mail that passes the SPF record at $NextRecord.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
 				If ($CountDnsLookups) {
-					Test-SpfRecord -DomainName $NextRecord -CountDnsLookups:$CountDnsLookups -Recursions $Recursions -DnsLookups $DnsLookups
+					Test-SpfRecord -DomainName $NextRecord -CountDnsLookups:$CountDnsLookups -DisableDnssecVerification:$DisableDnssecVerification -Recursions $Recursions -DnsLookups $DnsLookups
 				}
 			}
 			Else {

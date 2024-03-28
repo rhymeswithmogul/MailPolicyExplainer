@@ -3,7 +3,9 @@
 ## Version 1.4.0
 This will be released soon.
 
-One new feature.  `Test-DkimRecord` will print the full DKIM TXT record to the verbose stream (i.e., the one that's visible when using `-Verbose` or setting the appropriate `$VerbosePreference` value).  Thanks to [Jason Berry](https://github.com/skyblaster) for writing [the pull request](https://github.com/rhymeswithmogul/MailPolicyExplainer/pull/1)!
+New features:
+ - Most cmdlets now have a `-DisableDnssecVerification` switch that will disable all DNSSEC checks.  While it is still a best practice, maybe your DNS host doesn't support it (for some reason) and you'd like this cmdlet not to nag you every time.  Note that DNSSEC checks are still done for DANE records, as the former is a prerequisite for the latter, whether this switch is specified or not.
+ - `Test-DkimRecord` will print the full DKIM TXT record to the verbose stream (i.e., the one that's visible when using `-Verbose` or setting the appropriate `$VerbosePreference` value).  Thanks to [Jason Berry](https://github.com/skyblaster) for writing [the pull request](https://github.com/rhymeswithmogul/MailPolicyExplainer/pull/1)!
 
 Two bugs were fixed:
  - The SPF parser would sometimes show IPv4 addresses with a character prepended;  for example, "Accept mail from the IPv4 address +192.0.2.1" or "Reject mail from the IPv4 address -192.0.2.2".  This has been corrected by fixing the parser.

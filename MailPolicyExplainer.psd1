@@ -114,6 +114,7 @@ PrivateData = @{
 
 		ReleaseNotes = '- Test-DkimRecord will emit the full DKIM TXT record to the verbose stream.
 - DNSSEC-authenticated denial-of-existence is now shown by default.
+- Added the `-DisableDnssecVerification` switch to most cmdlets to disable all DNSSEC checks (except for DANE).
 - Removed the `ip4:` qualifier from parser output.'
 	}
 }

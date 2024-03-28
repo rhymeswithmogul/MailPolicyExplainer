@@ -13,7 +13,8 @@ Tests and explains a domain's SPF record.
 ## SYNTAX
 
 ```
-Test-SpfRecord [-DomainName] <String> [-CountDnsLookups] [<CommonParameters>]
+Test-SpfRecord [-DomainName] <String> [-CountDnsLookups] [-DisableDnssecVerification]
+ [-Recursions <PSReference>] [-DnsLookups <PSReference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -77,6 +78,21 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -DisableDnssecVerification
+Disable DNSSEC validation.  This cmdlet will not request authenticated data from the resolver;  thus, DNSSEC validation of resource records will not occur, nor will the user be informed about unauthenticated denial of existence of DNS records.  Using this switch is NOT RECOMMENDED for production use and should only be used for diagnostic and troubleshooting purposes only!
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: CD, DnssecCD, NoDnssec, DisableDnssec
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
@@ -89,6 +105,8 @@ This cmdlet does not accept pipeline input.
 
 ### System.Void
 This cmdlet does not generate pipeline output.
+
+## NOTES
 
 ## RELATED LINKS
 

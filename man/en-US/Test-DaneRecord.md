@@ -82,6 +82,8 @@ This cmdlet does not generate pipeline output.
 ## NOTES
 This cmdlet does not attempt to connect to the server and test that the DANE records are valid.  It only tests them for correctness.
 
+DNSSEC is a requirement for DANE;  thus, DNSSEC validation cannot be disabled for this cmdlet.
+
 ## RELATED LINKS
 
 [Test-MXRecord]()

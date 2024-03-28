@@ -64,5 +64,6 @@ This cmdlet does not generate pipeline output.
 This cmdlet merely tests to make sure DNS A and AAAA records exist.  It does not test to make sure that these IP addresses are actually working.  This is done because not all hosts running this cmdlet are guaranteed to have both IPv4 and IPv6 addresses (i.e., an IPv4-only network or a NAT64 network without CLAT).
 
 ## RELATED LINKS
+
 [Test-MailPolicy](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/man/en-US/Test-MailPolicy.md)
 [about_MailPolicyExplainer](https://github.com/rhymeswithmogul/MailPolicyExplainer/blob/main/en-US/about_MailPolicyExplainer.help.txt)

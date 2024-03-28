@@ -79,6 +79,20 @@ Help
     help topics in case you'd like to learn more about the standards that are
     being tested.
 
+Disabling DNSSEC Validation
+    You may disable most cmdlets' built-in DNSSEC verification by specifying the 
+    `-DisableDnssecValidation` (alias: `-CD`).  Queries to the upstream resolver
+    will request that  DNSSEC checking be disabled;  thus, DNSSEC validation of
+    resource records will not occur, nor will you be informed of unauthenticated
+    denial of existence of DNS records.
+    
+    It is best practice that all zones, records, and delegations be signed with
+    DNSSEC.  Using this switch is NOT RECOMMENDED for production use and should
+    only be used for diagnostic and troubleshooting purposes only!
+
+    Note that DANE requires DNSSEC.  Using this switch with `Test-DaneRecord`
+    will print a warning, and DNSSEC validation will occur normally
+
 Limitations
     While this module does its best to test the correctness of DNS records, it
     cannot ensure the complete validity of everything.  For example:

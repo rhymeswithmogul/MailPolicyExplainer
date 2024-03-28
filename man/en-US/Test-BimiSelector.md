@@ -13,7 +13,7 @@ Tests a domain's BIMI selector for correctness.
 ## SYNTAX
 
 ```
-Test-BimiSelector [-DomainName] <String> [[-Name] <String>] [<CommonParameters>]
+Test-BimiSelector [-DomainName] <String> [[-Name] <String>] [-DisableDnssecVerification] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -77,6 +77,21 @@ Aliases: Selector, SelectorName
 Required: False
 Position: 1
 Default value: "default"
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -DisableDnssecVerification
+Disable DNSSEC validation.  This cmdlet will not request authenticated data from the resolver;  thus, DNSSEC validation of resource records will not occur, nor will the user be informed about unauthenticated denial of existence of DNS records.  Using this switch is NOT RECOMMENDED for production use and should only be used for diagnostic and troubleshooting purposes only!
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: CD, DnssecCD, NoDnssec, DisableDnssec
+
+Required: False
+Position: Named
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
