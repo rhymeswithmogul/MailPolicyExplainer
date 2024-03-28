@@ -245,12 +245,14 @@ Function Test-AdspRecord
 	)
 
 	$DnsLookup = Invoke-GooglePublicDnsApi "_adsp._domainkey.$DomainName" 'TXT' -Debug:$DebugPreference
+	$ADSPRecordFound = $DnsLookup.PSObject.Properties.Name -Contains 'Answer' -and $DnsLookup.Status -ne 3
 
-	If ($DnsLookup.PSObject.Properties.Name -NotContains 'Answer' -or $DnsLookup.Status -eq 3)
-	{
-		Write-Verbose 'DKIM ADSP: No ADSP record was found.'
-	}
-	Else
+	#region DNSSEC check
+	# Since DKIM ADSP is historic, I don't want the DNSSEC-authenticated denial
+	# of existence to show up when using Test-MailPolicy.  Only show the DNSSEC
+	# information when calling this function directly, or if there is an ADSP
+	# record to display.
+	If ($ADSPRecordFound -or ((Get-PSCallStack).Command)[1] -ne 'Test-MailPolicy')
 	{
 		If ($DnsLookup.AD) {
 			Write-GoodNews "DKIM ADSP: This DNS lookup is secure."
@@ -258,7 +260,15 @@ Function Test-AdspRecord
 		Else {
 			Write-BadPractice "DKIM ADSP: This DNS lookup is insecure. Enable DNSSEC for this domain."
 		}
+	}
+	#endregion
 
+	If (-Not $ADSPRecordFound)
+	{
+		Write-Verbose 'DKIM ADSP: No ADSP record was found.'
+	}
+	Else
+	{
 		Write-BadPractice "DKIM ADSP: Author Domain Signing Practices is declared historic and should not be relied on."
 		$AdspRecord = $DnsLookup.Answer.Data
 
@@ -294,17 +304,19 @@ Function Test-BimiSelector
 
 	$DnsLookup = Invoke-GooglePublicDnsApi "$Name._bimi.$DomainName" 'TXT' -Debug:$DebugPreference
 
-	If ($DnsLookup.PSObject.Properties.Name -NotContains 'Answer' -or $DnsLookup.Status -eq 3)
-	{
-		Write-Informational "BIMI selector ${Selector}: Not found!"
-		Return
-	}
-
+	#region DNSSEC check
 	If ($DnsLookup.AD) {
 		Write-GoodNews "BIMI selector ${Selector}: This DNS lookup is secure."
 	}
 	Else {
 		Write-BadPractice "BIMI selector ${Selector}: This DNS lookup is insecure. Enable DNSSEC for this domain."
+	}
+	#endregion
+
+	If ($DnsLookup.PSObject.Properties.Name -NotContains 'Answer' -or $DnsLookup.Status -eq 3)
+	{
+		Write-Informational "BIMI selector ${Selector}: Not found!"
+		Return
 	}
 
 	$BimiRecord = ($DnsLookup.Answer | Where-Object type -eq 16).Data
@@ -396,17 +408,20 @@ Function Test-DaneRecord
 		$MXName = $_.Server -Replace '\.$'
 
 		$DnsLookup = Invoke-GooglePublicDnsApi "_25._tcp.$MXName" 'TLSA' -Debug:$DebugPreference
-		If ($DnsLookup.PSObject.Properties.Name -NotContains 'Answer' -or $DnsLookup.Status -eq 2 -or $DnsLookup.Status -eq 3)
-		{
-			Write-BadNews "DANE: DANE records are not present for ${MXName}, TCP port 25."
-			Return
-		}
 
+		#region DNSSEC check
 		If ($DnsLookup.AD) {
 			Write-GoodNews "DANE: ${MXName}: The DNS lookup is secure."
 		}
 		Else {
 			Write-BadNews "DANE: ${MXName}: The DNS lookup is insecure; the DANE records cannot be used!  Enable DNSSEC for this domain."
+			Return
+		}
+		#endregion
+
+		If ($DnsLookup.PSObject.Properties.Name -NotContains 'Answer' -or $DnsLookup.Status -eq 2 -or $DnsLookup.Status -eq 3)
+		{
+			Write-BadNews "DANE: DANE records are not present for ${MXName}, TCP port 25."
 			Return
 		}
 
@@ -459,20 +474,21 @@ Function Test-DkimSelector
 	)
 
 	$DnsLookup = Invoke-GooglePublicDnsApi "$Name._domainkey.$DomainName" 'TXT' -Debug:$DebugPreference
-
 	$Name = " $Name"
 
-	If ($DnsLookup.PSObject.Properties.Name -NotContains 'Answer' -or $DnsLookup.Status -eq 3)
-	{
-		Write-BadNews "DKIM selector${Name}: This selector was not found."
-		Return
-	}
-
+	#region DNSSEC check
 	If ($DnsLookup.AD) {
 		Write-GoodNews "DKIM selector${Name}: This DNS lookup is secure."
 	}
 	Else {
 		Write-BadPractice "DKIM selector${Name}: This DNS lookup is insecure. Enable DNSSEC for this domain."
+	}
+	#endregion
+
+	If ($DnsLookup.PSObject.Properties.Name -NotContains 'Answer' -or $DnsLookup.Status -eq 3)
+	{
+		Write-BadNews "DKIM selector${Name}: This selector was not found."
+		Return
 	}
 
 	$DkimKeyRecord = ($DnsLookup.Answer | Where-Object type -eq 16).Data
@@ -622,17 +638,19 @@ Function Test-DmarcRecord
 
 	$DnsLookup = Invoke-GooglePublicDnsApi "_dmarc.$DomainName" 'TXT' -Debug:$DebugPreference
 
-	If ($DnsLookup.PSObject.Properties.Name -NotContains 'Answer' -or $DnsLookup.Status -eq 3)
-	{
-		Write-BadNews "DMARC: Not found!"
-		Return
-	}
-
+	#region DNSSEC check
 	If ($DnsLookup.AD) {
 		Write-GoodNews "DMARC: This DNS lookup is secure."
 	}
 	Else {
 		Write-BadPractice "DMARC: This DNS lookup is insecure. Enable DNSSEC for this domain."
+	}
+	#endregion
+
+	If ($DnsLookup.PSObject.Properties.Name -NotContains 'Answer' -or $DnsLookup.Status -eq 3)
+	{
+		Write-BadNews "DMARC: Not found!"
+		Return
 	}
 
 	$DmarcRecord = ($DnsLookup.Answer | Where-Object type -eq 16).Data
@@ -802,17 +820,19 @@ Function Test-MtaStsPolicy
 
 	$DnsLookup = Invoke-GooglePublicDnsApi "_mta-sts.$DomainName" 'TXT' -Debug:$DebugPreference
 
-	If ($DnsLookup.PSObject.Properties.Name -NotContains 'Answer' -or $DnsLookup.Status -eq 3)
-	{
-		Write-BadNews "MTA-STS Record: Not found! (Skipping policy test.)"
-		Return
-	}
-
+	#region DNSSEC check
 	If ($DnsLookup.AD) {
 		Write-GoodNews "MTA-STS Record: This DNS lookup is secure."
 	}
 	Else {
 		Write-BadPractice "MTA-STS Record: This DNS lookup is insecure. Enable DNSSEC for this domain."
+	}
+	#endregion
+
+	If ($DnsLookup.PSObject.Properties.Name -NotContains 'Answer' -or $DnsLookup.Status -eq 3)
+	{
+		Write-BadNews "MTA-STS Record: Not found! (Skipping policy test.)"
+		Return
 	}
 
 	$MtaStsRecord = ($DnsLookup.Answer | Where-Object Type -eq 16).Data
@@ -1022,15 +1042,6 @@ Function Test-SmtpTlsReportingPolicy
 	)
 
 	$DnsLookup = Invoke-GooglePublicDnsApi "_smtp._tls.$DomainName" 'TXT' -Debug:$DebugPreference
-	If ($DnsLookup.PSObject.Properties.Name -NotContains 'Answer' -or $DnsLookup.Status -eq 3)
-	{
-		Write-BadNews "TLSRPT: SMTP TLS Reporting is not enabled for this domain."
-		Return
-	}
-	ElseIf (($DnsLookup.Answer | Where-Object type -eq 16).Count -gt 1) {
-		Write-BadNews "TLSRPT: More than one DNS record was found.  SMTP TLS Reporting must be assumed not to be supported!"
-		Return
-	}
 
 	#region DNSSEC check
 	If ($DnsLookup.AD) {
@@ -1040,6 +1051,16 @@ Function Test-SmtpTlsReportingPolicy
 		Write-BadPractice "TLSRPT: This DNS lookup is insecure. Enable DNSSEC for this domain."
 	}
 	#endregion DNSSEC check
+	
+	If ($DnsLookup.PSObject.Properties.Name -NotContains 'Answer' -or $DnsLookup.Status -eq 3)
+	{
+		Write-BadNews "TLSRPT: SMTP TLS Reporting is not enabled for this domain."
+		Return
+	}
+	ElseIf (($DnsLookup.Answer | Where-Object type -eq 16).Count -gt 1) {
+		Write-BadNews "TLSRPT: More than one DNS record was found.  SMTP TLS Reporting must be assumed not to be supported!"
+		Return
+	}
 
 	$TlsRptPolicy = ($DnsLookup.Answer | Where-Object type -eq 16).Data
 	If ($null -eq $TlsRptPolicy)
@@ -1135,11 +1156,7 @@ Function Test-SpfRecord
 	# of the two MailFrom headers, or both.  It never really took off.  Support
 	# for Sender ID may be removed from this module in the future.
 	$DnsLookup = Invoke-GooglePublicDnsApi "$DomainName" 'TXT' -Debug:$DebugPreference
-	If ($DnsLookup.PSObject.Properties.Name -NotContains 'Answer' -or $DnsLookup.Status -eq 3)
-	{
-		Write-BadNews "SPF: No TXT records were found at the root of $DomainName!"
-		Return
-	}
+	$NoSPF = $false
 
 	$SpfRecord = ($DnsLookup.Answer | Where-Object type -eq 16).Data | Where-Object {$_ -CLike "v=spf1 *" -or $_ -CLike "spf2.0/*"}
 	If ($SpfRecord -CLike "v=spf1 *") {
@@ -1149,15 +1166,15 @@ Function Test-SpfRecord
 		$RecordType = 'Sender ID'
 	}
 	Else {
-		Write-BadNews "SPF: No SPF record was found."
-		Return
+		$RecordType = 'SPF'
+		$NoSPF = $true
 	}
-	#endregion
 
 	# Add indentation when doing recursive SPF lookups.
 	If ($CountDnsLookups) {
 		$RecordType = "$('├──' * $Recursions.Value)$RecordType"
 	}
+	#endregion
 
 	#region DNSSEC check
 	If ($DnsLookup.AD) {
@@ -1168,11 +1185,17 @@ Function Test-SpfRecord
 	}
 	#endregion
 
-	Write-Verbose "Checking the $RecordType record: `"$SpfRecord`""
-	If ($DnssecSecured) {
-		Write-GoodNews "${RecordType}: This DNS lookup is secured with DNSSEC."
+	If ($DnsLookup.PSObject.Properties.Name -NotContains 'Answer' -or $DnsLookup.Status -eq 3)
+	{
+		Write-BadNews "${RecordType}: No TXT records were found for $DomainName!"
+		Return
+	}
+	If ($NoSPF)
+	{
+		Write-BadNews "${RecordType}: A TXT record was found for $DomainName, but it is not an SPF record!"
 	}
 
+	Write-Verbose "Checking the $RecordType record: `"$SpfRecord`""
 	ForEach ($token in ($SpfRecord -Split ' ')) {
 		#region Check SPF versions
 		If ($token -Eq "v=spf1") {

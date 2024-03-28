@@ -113,6 +113,7 @@ PrivateData = @{
 		IconUri = 'https://raw.githubusercontent.com/rhymeswithmogul/MailPolicyExplainer/main/icon/PSGallery.png'
 
 		ReleaseNotes = '- Test-DkimRecord will emit the full DKIM TXT record to the verbose stream.
+- DNSSEC-authenticated denial-of-existence is now shown by default.
 - Removed the `ip4:` qualifier from parser output.'
 	}
 }

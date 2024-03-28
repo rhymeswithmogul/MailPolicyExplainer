@@ -1,7 +1,8 @@
 # MailPolicyExplainer Change Log
 
-## Version 1.3.5
+## Version 1.4.0
 - **NEW** `Test-DkimRecord` will print the full DKIM TXT record to the verbose stream.  Thanks to [Jason Berry](https://github.com/skyblaster) for writing [the pull request](https://github.com/rhymeswithmogul/MailPolicyExplainer/pull/1)!
+- **FIX** DNSSEC results are shown even when records are not found, to show proof of non-existence.
 - **FIX** The SPF qualifier is no longer prepended to IPv4 addresses.
 
 ## Version 1.3.4 (Wednesday, January 24, 2024)
