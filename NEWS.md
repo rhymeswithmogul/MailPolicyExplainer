@@ -10,6 +10,7 @@ New features:
 Two bugs were fixed:
  - The SPF parser would sometimes show IPv4 addresses with a character prepended;  for example, "Accept mail from the IPv4 address +192.0.2.1" or "Reject mail from the IPv4 address -192.0.2.2".  This has been corrected by fixing the parser.
  - DNSSEC status is now shown even when records are not found.  DNSSEC is checked even records do not exist, in what's called authenticated denial of existence, so we should communicate it to the user regardless.
+ - MTA-STS policy files are parsed to make sure they contain CR+LF line endings, but this did not work correctly on Windows PowerShell 5.1.  Thanks to [Jason Berry](https://github.com/skyblaster) for reporting it [and fixing it, too](https://github.com/rhymeswithmogul/MailPolicyExplainer/pull/2)!
 
 ## Version 1.3.4
 This was released on Wednesday, January 24, 2024.

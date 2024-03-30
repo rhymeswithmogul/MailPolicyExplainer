@@ -5,6 +5,7 @@
 - **NEW** `Test-DkimRecord` will print the full DKIM TXT record to the verbose stream.  Thanks to [Jason Berry](https://github.com/skyblaster) for writing [the pull request](https://github.com/rhymeswithmogul/MailPolicyExplainer/pull/1)!
 - **FIX** DNSSEC results are shown even when records are not found, to show proof of non-existence (unless DNSSEC validation is disabled).
 - **FIX** The SPF qualifier is no longer prepended to IPv4 addresses.
+- **FIX** A bug caused Windows PowerShell 5.1 not to parse MTA-STS policy file line endings properly.  Thanks to [Jason Berry](https://github.com/skyblaster) for reporting this and writing [another pull request](https://github.com/rhymeswithmogul/MailPolicyExplainer/pull/2)!
 
 ## Version 1.3.4 (Wednesday, January 24, 2024)
 **FIX** Some previous versions of this module failed to load on Windows PowerShell 5.1 due to a missing backtick.  PowerShell 7 considered this to be valid syntax.  Thanks to Aslan Grealis for finding this bug.
