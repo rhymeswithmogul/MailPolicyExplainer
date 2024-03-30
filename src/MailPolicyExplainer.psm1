@@ -964,8 +964,8 @@ Function Test-MtaStsPolicy
 		# Split it up two different ways and see if we get the same results.
 		# If not, then someone probably saved the file with UNIX ("`r") endings.
 		# We're going to be strict and refuse to parse the file in this case.
-		$lines   = $policy.Content.Split("`r`n")
-		$LFlines = $policy.Content -Split "`r?`n"
+		$lines   = $policy.Content -Split "`r`n"
+		$LFlines = $policy.Content -Split "`n"
 
 		If ($lines.Count -ne $LFLines.Count) {
 			Write-Debug "This file has $($lines.Count) CRLF-terminated lines and $($LFlines.Count) LF-terminated lines."
