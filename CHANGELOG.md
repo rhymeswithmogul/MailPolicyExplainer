@@ -1,6 +1,6 @@
 # MailPolicyExplainer Change Log
 
-## Version 1.4.0
+## Version 1.4.0 (Thursday, April 4, 2024)
 - **NEW** Most cmdlets now have a switch, `-DisableDnssecValidation`, that does just that.
 - **NEW** `Test-DkimRecord` will print the full DKIM TXT record to the verbose stream.  Thanks to [Jason Berry](https://github.com/skyblaster) for writing [the pull request](https://github.com/rhymeswithmogul/MailPolicyExplainer/pull/1)!
 - **FIX** DNSSEC results are shown even when records are not found, to show proof of non-existence (unless DNSSEC validation is disabled).

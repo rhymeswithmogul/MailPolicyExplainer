@@ -1,7 +1,7 @@
 # MailPolicyExplainer News
 
 ## Version 1.4.0
-This will be released soon.
+This was released on Thursday, April 4, 2024.  It's dedicated to Mimi (2006-2024), the best cat and a very good girl.
 
 New features:
  - Most cmdlets now have a `-DisableDnssecVerification` switch that will disable all DNSSEC checks.  While it is still a best practice, maybe your DNS host doesn't support it (for some reason) and you'd like this cmdlet not to nag you every time.  Note that DNSSEC checks are still done for DANE records, as the former is a prerequisite for the latter, whether this switch is specified or not.
