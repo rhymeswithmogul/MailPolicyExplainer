@@ -30,6 +30,7 @@ Exchange Online always uses DKIM selectors "selector1" and "selector2".  If a do
 ```powershell
 PS C:\>  Test-MailPolicy fabrikam.com -DkimSelectorsToCheck "selector1","selector2"
 ```
+![MailPolicyExplainer's output when running:  Test-MailPolicy -DkimSelectorsToCheck 'selector1','selector2' microsoft.com](https://raw.githubusercontent.com/rhymeswithmogul/MailPolicyExplainer/main/man/en-US/Microsoft.com.png)
 
 But what if they *do* use something like Constant Contact?  Assuming the DKIM selector name is known:
 ```powershell
@@ -48,6 +49,9 @@ Or, if you only want to test one aspect of email, you can test items individuall
 PS C:\>  Test-MtaStsPolicy adatum.com
 ```
 
+![MailPolicyExplainer's output when running:  Test-MaStsPolicy colincogle.name](https://raw.githubusercontent.com/rhymeswithmogul/MailPolicyExplainer/main/man/en-US/MyMtaSts.png)
+
+
 ## SPF DNS Lookup Counts
 It can also count how many DNS lookups are in an SPF record.
 ```powershell
@@ -55,6 +59,8 @@ PS C:\>  Test-MailPolicy northwindtraders.com -CountSpfDnsLookups  # or
 PS C:\>  Test-SpfRecord  northwindtraders.com -CountDnsLookups     # or
 PS C:\>  Test-SpfRecord  northwindtraders.com -Recurse
 ```
+
+![MailPolicyExplainer's output when running:  Test-SpfRecord -Recurse microsoft.com](https://raw.githubusercontent.com/rhymeswithmogul/MailPolicyExplainer/main/man/en-US/MicrosoftSPF.png)
 
 
 # Further Help
