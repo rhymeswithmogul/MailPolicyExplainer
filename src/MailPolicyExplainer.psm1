@@ -754,18 +754,18 @@ Function Test-DmarcRecord
 		ElseIf ($token -Like "pct=*") {
 			$pct = [Byte]($token -Replace 'pct=')
 			If ($pct -eq 100) {
-				If ($DmarcPolicy -Match "reject") {
+				If ($policy -Match "reject") {
 					Write-Informational "DMARC: Reject 100% of email that fails DMARC (default)."
 				}
-				ElseIf ($DmarcPolicy -Match 'quarantine') {
+				ElseIf ($policy -Match 'quarantine') {
 					Write-Informational "DMARC: Quarantine 100% of email that fails DMARC (default)."
 				}
 			}
 			Else {
-				If ($DmarcPolicy -Match "reject") {
+				If ($policy -Match "reject") {
 					Write-Informational "DMARC: Only reject ${pct}% of unaligned email; the rest will be quarantined."
 				}
-				ElseIf ($DmarcPolicy -Match 'quarantine') {
+				ElseIf ($policy -Match 'quarantine') {
 					Write-BadPractice "DMARC: Only quarantine ${pct}% of unaligned email; the rest will be delivered."
 				}
 			}
