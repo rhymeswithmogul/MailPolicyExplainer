@@ -1,0 +1,5 @@
+# For better Windows compatibility, though
+# it's been fine so far.
+
+[core]
+	ignorecase = true
