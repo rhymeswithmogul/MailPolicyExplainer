@@ -24,7 +24,7 @@ with this program.  If not, see <https://www.gnu.org/licenses/>.
 RootModule = 'src/MailPolicyExplainer.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.4.0'
+ModuleVersion = '1.4.1'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Core', 'Desktop')
@@ -129,11 +129,7 @@ PrivateData = @{
 		ProjectUri = 'https://github.com/rhymeswithmogul/MailPolicyExplainer'
 		IconUri = 'https://raw.githubusercontent.com/rhymeswithmogul/MailPolicyExplainer/main/icon/PSGallery.png'
 
-		ReleaseNotes = '- Test-DkimRecord will emit the full DKIM TXT record to the verbose stream.
-- DNSSEC-authenticated denial-of-existence is now shown by default.
-- Added the `-DisableDnssecVerification` switch to most cmdlets to disable all DNSSEC checks (except for DANE).
-- Removed the `ip4:` qualifier from parser output.
-- Line endings for MTA-STS policy files are now parsed correctly on Windows PowerShell 5.1.'
+		ReleaseNotes = 'Fixes a bug where DMARC "pct" tokens were not being explained.'
 	}
 }
 

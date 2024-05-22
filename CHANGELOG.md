@@ -1,5 +1,8 @@
 # MailPolicyExplainer Change Log
 
+## Version 1.4.1 (Wednesday, May 22, 2024)
+**FIX** DMARC `pct` tokens are now properly explained.  Thanks to [Jason Berry](https://github.com/skyblaster) for finding the bug and writing [the pull request](https://github.com/rhymeswithmogul/MailPolicyExplainer/pull/3)!
+
 ## Version 1.4.0 (Thursday, April 4, 2024)
 - **NEW** Most cmdlets now have a switch, `-DisableDnssecValidation`, that does just that.
 - **NEW** `Test-DkimRecord` will print the full DKIM TXT record to the verbose stream.  Thanks to [Jason Berry](https://github.com/skyblaster) for writing [the pull request](https://github.com/rhymeswithmogul/MailPolicyExplainer/pull/1)!
