@@ -1,6 +1,6 @@
 ﻿<#
 MailPolicyExplainer.psm1 -- source file for said module
-Copyright (C) 2018, 2020, 2023-2024 Colin Cogle.  All Rights Reserved.
+Copyright (C) 2018, 2020, 2023-2025 Colin Cogle.  All Rights Reserved.
 
 This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU Affero General Public License as published by the Free

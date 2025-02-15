@@ -1,6 +1,6 @@
 ﻿<#
 MailPolicyExplainer.psd1 -- manifest file for said module
-Copyright (C) 2018, 2020, 2023-2024 Colin Cogle.  All Rights Reserved.
+Copyright (C) 2018, 2020, 2023-2025 Colin Cogle.  All Rights Reserved.
 
 This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU Affero General Public License as published by the Free
@@ -24,7 +24,7 @@ with this program.  If not, see <https://www.gnu.org/licenses/>.
 RootModule = 'src/MailPolicyExplainer.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.4.1'
+ModuleVersion = '1.4.2'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Core', 'Desktop')
@@ -36,7 +36,7 @@ GUID = 'b3ec0108-05d3-43f1-a5ba-cc8f7f4cc8cc'
 Author = 'Colin Cogle'
 
 # Copyright statement for this module
-Copyright = '(c) 2018, 2020, 2023-2024 Colin Cogle. All rights reserved.'
+Copyright = '(c) 2018, 2020, 2023-2025 Colin Cogle. All rights reserved.'
 
 # Description of the functionality provided by this module
 Description = "Explains a domain's email DNS records, including MX, SPF, DKIM, DMARC, and more."
