@@ -1,5 +1,8 @@
 # MailPolicyExplainer News
 
+## Version 1.4.2
+This version is still in development and contains many fixes related to Sender ID checks (the so-called successor to SPF that never took off, but is still around for some reason).
+
 ## Version 1.4.1
 This was released on Wednesday, May 22, 2024.  Friend of the module [Jason Berry](https://github.com/skyblaster) [found and corrected a bug](https://github.com/rhymeswithmogul/MailPolicyExplainer/pull/3) a bug where the DMARC percentage (the `pct` token) was not being explained.
 

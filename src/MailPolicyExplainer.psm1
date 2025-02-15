@@ -456,7 +456,7 @@ Function Test-DaneRecord
 		{
 			If ($DisableDnssecVerification -and -not $ShowedDnssecWarning)
 			{
-				Write-Informational 'DANE: Records must be signed with DNSSEC. Validating DNSSEC anyway.'
+				Write-Informational 'DANE: Records must be signed with DNSSEC. Validating DANE anyway.'
 				$ShowedDnssecWarning = $true
 			}
 
@@ -1188,6 +1188,62 @@ Function Test-SmtpTlsReportingPolicy
 	}
 }
 
+Function Get-SPFTokenComponents
+{
+	[CmdletBinding()]
+	[OutputType([PSObject[]])]
+	Param(
+		[Parameter(Mandatory, Position=0)]
+		[String] $token
+	)
+
+	#region Break the token into its components
+	# We're going to pull all the important stuff from the token.  There can be
+	# an optional qualifier; then a mandatory IP address (for the ip4: and ip6:
+	# mechanisms), an optional hostname (a:, mx:, ptr:), or a mandatory hostname
+	# (include: or exists:); and an optional mask (for a:, ip4:, ip6:, mx:) that
+	# can cover IPv4 or IPv6 addresses depending on the protocol version in use
+	# by the MTA at the time of message receipt.
+	#
+	# There's a lot of null checks because I'm still supporting PowerShell 5.1
+	# in this version of the module.
+	#
+	$token -Match '(?<qualifier>[+\-~\?])?[a|exists|include|ip4|ip6|mx|ptr](?::(?<hostname>([^\/]*)))?(?:\/(?<mask>\d{1,3}))?' | Out-Null
+
+	# If there is no qualifier, then it's assumed to be '+'.
+	If ($null -ne $Matches.qualifier) {
+		$qualifier = $Matches.qualifier
+	}
+	Else {
+		$qualifier = '+'
+	}
+
+	# If a hostname is specified in the a/exists/include/mx/ptr token (i.e., "a:mail.contoso.com"), then use that.
+	# Otherwise, the hostname is implied to be the bare domain name.
+	#
+	# This same code pulls the IP address out of the ip4: and ip6: tokens, but it's mandatory for those.
+	If ($null -ne $Matches.hostname) {
+		$hostname = $Matches.hostname
+	}
+	Else {
+		$hostname = $DomainName
+	}
+
+	# If there is no mask given, it's assumed to be /32 for IPv4 and /128 for IPv6. There's no way to tell which address
+	# family a given host will resolve to, though.  That's left up to the MTA and I don't really have a good way to test
+	# that at the DNS level.  (This is why the language in this module doesn't refer to a specific IP version, except in
+	# checking ip4: or ip6: tokens.)
+	If ($null -ne $Matches.mask) {
+		$mask = $Matches.mask
+	}
+	Else {
+		$mask = $null
+	}
+
+	Write-Debug "q=$qualifier h=$hostname m=$mask"
+	Return @($qualifier, $hostname, $mask)
+}
+
 Function Test-SpfRecord
 {
 	[CmdletBinding()]
@@ -1216,13 +1272,23 @@ Function Test-SpfRecord
 	# $Recursions or $DnsLookups parameters themselves (in fact, they're hidden
 	# from help because they're for internal use only).  Thus, if an explicit
 	# value is not specified, re-call this function with one.
+	Write-Debug "Entering Test-SpfRecord as $($MyInvocation.InvocationName)."
 	If ($CountDnsLookups)
 	{
 		If ($null -eq $Recursions)
 		{
 			$r = -1		# it will be incremented to zero on the first run.
 			$d = 0
-			Test-SpfRecord -DomainName $DomainName -CountDnsLookups:$CountDnsLookups -DisableDnssecVerification:$DisableDnssecVerification -Recursions ([ref]$r) -DnsLookups ([ref]$d)
+			If ($MyInvocation.InvocationName -eq 'Test-SenderIdRecord')
+			{
+				Test-SenderIdRecord -DomainName $DomainName -CountDnsLookups:$CountDnsLookups -DisableDnssecVerification:$DisableDnssecVerification -Recursions ([ref]$r) -DnsLookups ([ref]$d)
+			}
+			ElseIf ($MyInvocation.InvocationName -eq 'Test-SpfRecord') {
+				Test-SpfRecord -DomainName $DomainName -CountDnsLookups:$CountDnsLookups -DisableDnssecVerification:$DisableDnssecVerification -Recursions ([ref]$r) -DnsLookups ([ref]$d)
+			}
+			Else {
+				Throw 'Unsupported invocation.'
+			}
 			Return	# do not recurse
 		}
 		Else {
@@ -1237,23 +1303,40 @@ Function Test-SpfRecord
 	# Microsoft's failed attempt to make an "SPF 2.0".  It can operate on either
 	# of the two MailFrom headers, or both.  It never really took off.  Support
 	# for Sender ID may be removed from this module in the future.
-	$DnsLookup = Invoke-GooglePublicDnsApi "$DomainName" 'TXT' -Debug:$DebugPreference -DisableDnssecVerification:$DisableDnssecVerification
-	$NoSPF = $false
+	$DnsLookup  = Invoke-GooglePublicDnsApi "$DomainName" 'TXT' -Debug:$DebugPreference -DisableDnssecVerification:$DisableDnssecVerification
+	$TxtRecords = ($DnsLookup.Answer | Where-Object type -eq 16).Data
+	$SpfRecord  = @()
+	$NoSPF      = $false
 
-	$SpfRecord = ($DnsLookup.Answer | Where-Object type -eq 16).Data | Where-Object {$_ -CLike "v=spf1 *" -or $_ -CLike "spf2.0/*"}
-	If ($SpfRecord -CLike "v=spf1 *") {
-		$RecordType = 'SPF'
+	Write-Debug "We have $($TxtRecords.Count) TXT records to consider."
+	ForEach ($x in $TxtRecords) {
+		Write-Debug "Candidate: $x"
 	}
-	ElseIf ($SpfRecord -CLike "spf2.0/*") {
+
+	Write-Debug "We are running the function $($MyInvocation.InvocationName)."
+	If ($MyInvocation.InvocationName -eq 'Test-SenderIdRecord')
+	{
+		$SpfRecord = $TxtRecords | Where-Object {$_ -CLike "spf2.0/*"}
+		Write-Debug "FOUND: $SpfRecord"
 		$RecordType = 'Sender ID'
 	}
-	Else {
+	ElseIf ($MyInvocation.InvocationName -eq 'Test-SpfRecord')
+	{
+		$SpfRecord = $TxtRecords | Where-Object {$_ -CLike "v=spf1 *"}
+		Write-Debug "FOUND: $SpfRecord"
 		$RecordType = 'SPF'
+	}
+	Else {
+		Throw "Unsupported invocation."
+	}
+
+	If ($null -eq $SpfRecord) {
 		$NoSPF = $true
 	}
 
 	# Add indentation when doing recursive SPF lookups.
 	If ($CountDnsLookups) {
+		$RecordTypePrintable = $RecordType -Split '─' | Select-Object -Last 1
 		$RecordType = "$('├──' * $Recursions.Value)$RecordType"
 	}
 	#endregion
@@ -1276,10 +1359,10 @@ Function Test-SpfRecord
 	}
 	If ($NoSPF)
 	{
-		Write-BadNews "${RecordType}: A TXT record was found for $DomainName, but it is not an SPF record!"
+		Write-BadNews "${RecordType}: A TXT record was found for $DomainName, but it is not a $RecordTypePrintable record!"
 	}
 
-	Write-Verbose "Checking the $RecordType record: `"$SpfRecord`""
+	Write-Verbose "Checking the $RecordTypePrintable record: `"$SpfRecord`""
 	ForEach ($token in ($SpfRecord -Split ' ')) {
 		#region Check SPF versions
 		If ($token -Eq "v=spf1") {
@@ -1291,11 +1374,11 @@ Function Test-SpfRecord
 		}
 		ElseIf ($token -Eq "spf2.0/mfrom") {
 			Write-BadPractice "${RecordType}: Sender ID records are historic and should be replaced with SPF TXT records."
-			Write-GoodNews "${RecordType}: This is a Sender ID record checking the mail From: address."
+			Write-GoodNews "${RecordType}: This is a Sender ID record checking the mail From: address (like SPF)."
 		}
 		ElseIf ($token -Eq "spf2.0/pra,mfrom" -Or $token -Eq "spf2.0/mfrom,pra") {
 			Write-BadPractice "${RecordType}: Sender ID records are historic and should be replaced with SPF TXT records."
-			Write-GoodNews "${RecordType}: This is a Sender ID record checking the mail From: and purported return addresses (like SPF)."
+			Write-GoodNews "${RecordType}: This is a Sender ID record checking the mail From: and purported return addresses."
 		}
 		#endregion
 
@@ -1308,9 +1391,14 @@ Function Test-SpfRecord
 				$DnsLookups.Value++
 			}
 
-			Write-Informational "${RecordType}: Use the SPF record at $Domain instead.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
+			Write-Informational "${RecordType}: Use the $RecordTypePrintable record at $Domain instead.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
 			If ($CountDnsLookups) {
-				Test-SpfRecord $Domain -CountDnsLookups:$CountDnsLookups -DisableDnssecVerification:$DisableDnssecVerification -Recursions $Recursions -DnsLookups $DnsLookups
+				If ($RecordType -eq 'Sender ID') {
+					Test-SenderIdRecord $Domain -CountDnsLookups:$CountDnsLookups -DisableDnssecVerification:$DisableDnssecVerification -Recursions $Recursions -DnsLookups $DnsLookups
+				}
+				Else {
+					Test-SpfRecord $Domain -CountDnsLookups:$CountDnsLookups -DisableDnssecVerification:$DisableDnssecVerification -Recursions $Recursions -DnsLookups $DnsLookups
+				}
 			}
 		}
 		#endregion
@@ -1322,59 +1410,36 @@ Function Test-SpfRecord
 				$DnsLookups.Value++
 			}
 
-			If ($token -Match "^\+?a$") {
-				Write-GoodNews "${RecordType}: Accept mail from $DomainName's IP address(es).$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
-			}
-			ElseIf ($token -Eq "-a") {
-				Write-GoodNews "${RecordType}: Reject mail from $DomainName's IP address(es).$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
-			}
-			ElseIf ($token -Eq "~a") {
-				Write-BadPractice "${RecordType}: Accept but mark mail from $DomainName's IP address(es).$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
-			}
-			ElseIf ($token -Eq "?a") {
-				Write-BadPractice "${RecordType}: No opinion on mail from $DomainName's IP address(es).$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
-			}
-			ElseIf ($token -Match "^\+?a:*") {
-				Write-GoodNews "${RecordType}: Accept mail from $($token -Replace '\+' -Replace 'a:')'s IP address(es).$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
-			}
-			ElseIf ($token -Like "-a:*") {
-				Write-GoodNews "${RecordType}: Reject mail from $($token -Replace '-a:')'s IP address(es).$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
-			}
-			ElseIf ($token -Like "~a:*") {
-				Write-BadPractice "${RecordType}: Accept but mark mail from $($token -Replace '?a:')'s IP address(es).$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
-			}
-			ElseIf ($token -Like "?a:*") {
-				Write-BadPractice "${RecordType}: No opinion on mail from $($token -Replace '?a:')'s IP address(es).$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
-			}
-			ElseIf ($token -Match "/") {
-				$mask = ($token -Split '/')[1]
-				If ($token -Match "^\+?a/[0-3]?[0-9]$") {
-					Write-GoodNews "${RecordType}: Accept mail from all hosts in the same IPv4 /$mask as $DomainName.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
+			$qualifier, $hostname, $mask = Get-SPFTokenComponents $token
+
+			If ($null -eq $mask)
+			{
+				If ($qualifier -eq '+') {
+					Write-GoodNews "${RecordType}: Accept mail from $hostname's IP address(es).$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
 				}
-				ElseIf ($token -Match "^-a/[0-3]?[0-9]$") {
-					Write-GoodNews "${RecordType}: Reject mail from all hosts in the same IPv4 /$mask as $DomainName.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
+				ElseIf ($qualifier -eq '-') {
+					Write-GoodNews "${RecordType}: Reject mail from $hostname's IP address(es).$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
 				}
-				ElseIf ($token -Match "^~a/[0-3]?[0-9]$") {
-					Write-BadPractice "${RecordType}: Accept but mark mail from all hosts in the same IPv4 /$mask as $DomainName.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
+				ElseIf ($qualifier -eq '~') {
+					Write-BadPractice "${RecordType}: Accept but mark mail from $hostname's IP address(es).$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
 				}
-				ElseIf ($token -Match "^?a/[0-3]?[0-9]$") {
-					Write-BadPractice "${RecordType}: No opinion on mail from all hosts in the same IPv4 /$mask as $DomainName.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
+				ElseIf ($qualifier -eq '?') {
+					Write-BadPractice "${RecordType}: No opinion on mail from $hostname's IP address(es).$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
 				}
-				ElseIf ($token -Match "^\+?a:*/[0-3]?[0-9]$") {
-					Write-GoodNews "${RecordType}: Accept mail from all hosts in the same IPv4 /$mask as $($token -Replace '\+' -Replace 'a:' -Replace '/[0-3]?[0-9]').$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
+			}
+			ElseIf ($null -ne $mask)
+			{
+				If ($qualifier -eq '+') {
+					Write-GoodNews "${RecordType}: Accept mail from all hosts in the same IP /$mask as $hostname.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
 				}
-				ElseIf ($token -Match "^-a:*/[0-3]?[0-9]$") {
-					Write-GoodNews "${RecordType}: Reject mail from all hosts in the same IPv4 /$mask as $($token -Replace '-a:' -Replace '/[0-3]?[0-9]').$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
+				ElseIf ($qualifier -eq '-') {
+					Write-GoodNews "${RecordType}: Reject mail from all hosts in the same IP /$mask as $hostname.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
 				}
-				ElseIf ($token -Match "^~a:*/[0-3]?[0-9]$") {
-					Write-BadPractice "${RecordType}: Accept but mark mail from all hosts in the same IPv4 /$mask as $($token -Replace '~a:' -Replace '/[0-3]?[0-9]').$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
+				ElseIf ($qualifier -eq '~') {
+					Write-BadPractice "${RecordType}: Accept but mark mail from all hosts in the same IP /$mask as $hostname.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
 				}
-				ElseIf ($token -Match "^?a:*/[0-3]?[0-9]$") {
-					Write-BadPractice "${RecordType}: No opinion on mail from all hosts in the same IPv4 /$mask as $($token -Replace '?a:' -Replace '/[0-3]?[0-9]').$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
-				}
-				Else {
-					Write-BadNews "${RecordType}: PermError while processing the A token $token."
-					Return
+				ElseIf ($qualifier -eq '?') {
+					Write-BadPractice "${RecordType}: No opinion on mail from all hosts in the same IP /$mask as $hostname.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
 				}
 			}
 			Else {
@@ -1391,59 +1456,36 @@ Function Test-SpfRecord
 				$DnsLookups.Value++
 			}
 
-			If ($token -Match "^\+?mx$") {
-				Write-GoodNews "${RecordType}: Accept mail from $DomainName's MX servers.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
-			}
-			ElseIf ($token -Eq "-mx") {
-				Write-GoodNews "${RecordType}: Reject mail from $DomainName's MX servers.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
-			}
-			ElseIf ($token -Eq "?mx") {
-				Write-BadPractice "${RecordType}: No opinion on mail from $DomainName's MX servers.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
-			}
-			ElseIf ($token -Eq "~mx") {
-				Write-BadPractice "${RecordType}: Accept but mark mail from $DomainName's MX servers.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
-			}
-			ElseIf ($token -Match "^\+?mx:.*$") {
-				Write-GoodNews "${RecordType}: Accept mail from $($token -Replace '\+' -Replace 'mx:')'s MX servers.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
-			}
-			ElseIf ($token -Like "-mx:.*$") {
-				Write-GoodNews "${RecordType}: Reject mail from $($token -Replace '-mx:')'s MX servers.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
-			}
-			ElseIf ($token -Like "~mx:.*$") {
-				Write-BadPractice "${RecordType}: Accept but mark mail from $($token -Replace '?mx:')'s MX servers.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
-			}
-			ElseIf ($token -Like "?mx:.*$") {
-				Write-BadPractice "${RecordType}: No opinion on mail from $($token -Replace '?mx:')'s MX servers.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
-			}
-			ElseIf ($token -Match "/") {
-				$mask = ($token -Split '/')[1]
-				If ($token -Match "^\+?mx/[0-3]?[0-9]$") {
-					Write-GoodNews "${RecordType}: Accept mail from all hosts in the same IPv4 /$mask as $DomainName's MX records.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
+			$qualifier, $hostname, $mask = Get-SPFTokenComponents $token
+
+			If ($null -eq $mask)
+			{
+				If ($qualifier -eq '+') {
+					Write-GoodNews "${RecordType}: Accept mail from $hostname's MX server(s).$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
 				}
-				ElseIf ($token -Match "^-mx/[0-3]?[0-9]$") {
-					Write-GoodNews "${RecordType}: Reject mail from all hosts in the same IPv4 /$mask as $DomainName's MX records.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
+				ElseIf ($qualifier -eq '-') {
+					Write-GoodNews "${RecordType}: Reject mail from $hostname's MX server(s).$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
 				}
-				ElseIf ($token -Match "^\?mx/[0-3]?[0-9]$") {
-					Write-BadPractice "${RecordType}: No opinion on mail from all hosts in the same IPv4 /$mask as $DomainName's MX records.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
+				ElseIf ($qualifier -eq '~') {
+					Write-BadPractice "${RecordType}: Accept but mark mail from $hostname's MX server(s).$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
 				}
-				ElseIf ($token -Match "^~mx/[0-3]?[0-9]$") {
-					Write-BadPractice "${RecordType}: Accept but mark mail from all hosts in the same IPv4 /$mask as $DomainName's MX records.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
+				ElseIf ($qualifier -eq '?') {
+					Write-BadPractice "${RecordType}: No opinion on mail from $hostname's MX server(s).$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
 				}
-				ElseIf ($token -Match "^\+?mx:.*/[0-3]?[0-9]$") {
-					Write-GoodNews "${RecordType}: Accept mail from all hosts in the same IPv4 /$mask as $($token -Replace '\+' -Replace 'mx:' -Replace '/[0-3]?[0-9]')'s MX records.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
+			}
+			ElseIf ($null -ne $mask)
+			{
+				If ($qualifier -eq '+') {
+					Write-GoodNews "${RecordType}: Accept mail from all hosts in the same IP /$mask as $hostname's MX server(s).$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
 				}
-				ElseIf ($token -Match "^-mx:.*/[0-3]?[0-9]$") {
-					Write-GoodNews "${RecordType}: Reject mail from all hosts in the same IPv4 /$mask as $($token -Replace '-mx:' -Replace '/[0-3]?[0-9]')'s MX records.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
+				ElseIf ($qualifier -eq '-') {
+					Write-GoodNews "${RecordType}: Reject mail from all hosts in the same IP /$mask as $hostname's MX server(s).$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
 				}
-				ElseIf ($token -Match "^\?mx:.*/[0-3]?[0-9]$") {
-					Write-BadPractice "${RecordType}: No opinion on mail from all hosts in the same IPv4 /$mask as $($token -Replace '?mx:' -Replace '/[0-3]?[0-9]')'s MX records.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
+				ElseIf ($qualifier -eq '~') {
+					Write-BadPractice "${RecordType}: Accept but mark mail from all hosts in the same IP /$mask as $hostname's MX server(s).$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
 				}
-				ElseIf ($token -Match "^~mx:.*/[0-3]?[0-9]$") {
-					Write-BadPractice "${RecordType}: Accept but mark mail from all hosts in the same IPv4 /$mask as $($token -Replace '?mx:' -Replace '/[0-3]?[0-9]')'s MX records.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
-				}
-				Else {
-					Write-BadNews "${RecordType}: PermError while processing the MX token $token."
-					Return
+				ElseIf ($qualifier -eq '?') {
+					Write-BadPractice "${RecordType}: No opinion on mail from all hosts in the same IP /$mask as $hostname's MX server(s).$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
 				}
 			}
 			Else {
@@ -1460,47 +1502,43 @@ Function Test-SpfRecord
 				$DnsLookups.Value++
 			}
 
-			If ($token -Match "^\+?exists:.*") {
-				Write-GoodNews "${RecordType}: Accept mail if $($token -Replace '\+' -Replace 'exists:') resolves to an A record.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
-			}
-			ElseIf ($token -Like "-exists:*") {
-				Write-GoodNews "${RecordType}: Reject mail if $($token -Replace '-exists:') resolves to an A record.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
-			}
-			ElseIf ($token -Like "~exists:*") {
-				Write-BadPractice "${RecordType}: Accept but mark mail if $($token -Replace '~exists:') resolves to an A record.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
-			}
-			ElseIf ($token -Like "?exists:*") {
-				Write-BadPractice "${RecordType}: No opinion if $($token -Replace '?exists:') resolves to an A record.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
-			}
-			Else {
-				Write-BadNews "${RecordType}: PermError while processing the Exists token $token."
-				Return
+			$qualifier, $hostname = Get-SPFTokenComponents $token
+
+			Switch ($qualifier)
+			{
+				'+' {Write-GoodNews    "${RecordType}: Accept mail if $hostname resolves to an A record.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"}
+				'-' {Write-GoodNews    "${RecordType}: Reject mail if $hostname resolves to an A record.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"}
+				'~' {Write-BadPractice "${RecordType}: Accept but mark mail if $hostname resolves to an A record.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"}
+				'?' {Write-BadPractice "${RecordType}: No opinion if $hostname resolves to an A record.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"}
+				default {
+					Write-BadNews "${RecordType}: PermError while processing the Exists token $token."
+					Return
+				}
 			}
 		}
 		#endregion
 
 		#region Check ip4: and ip6: tokens
 		ElseIf ($token -Match "^[\+\-\?\~]?ip4:*") {
+			$ip4addr = $token -Replace '[\+\-\?\~]?ip4:' -Replace '/32'
 			If ($token -Match "/" -And -Not ($token -Like "*/32")) {
-				$ip4net = $token -Replace 'ip4:'
 				If ($token -Match "^\+?ip4:.*") {
-					Write-GoodNews "${RecordType}: Accept mail from the IPv4 subnet $ip4net."
+					Write-GoodNews "${RecordType}: Accept mail from the IPv4 subnet $ip4addr."
 				}
 				ElseIf ($token -Like "-ip4:*") {
-					Write-GoodNews "${RecordType}: Reject mail from the IPv4 subnet $ip4net."
+					Write-GoodNews "${RecordType}: Reject mail from the IPv4 subnet $ip4addr."
 				}
 				ElseIf ($token -Like "~ip4:*") {
-					Write-BadPractice "${RecordType}: Accept but mark mail from the IPv4 subnet $ip4net."
+					Write-BadPractice "${RecordType}: Accept but mark mail from the IPv4 subnet $ip4addr."
 				}
 				ElseIf ($token -Like "?ip4:*") {
-					Write-BadPractice "${RecordType}: No opinion on mail from the IPv4 subnet $ip4net."
+					Write-BadPractice "${RecordType}: No opinion on mail from the IPv4 subnet $ip4addr."
 				}
 				Else {
 					Write-BadNews "${RecordType}: PermError while processing the IPv4 token $token."
 					Return
 				}
 			} Else {
-				$ip4addr = $token -Replace '[\+\-\~\?]?ip4:' -Replace '/32'
 				If ($token -Match "^\+?ip4:.*") {
 					Write-GoodNews "${RecordType}: Accept mail from the IPv4 address $ip4addr."
 				}
@@ -1520,26 +1558,25 @@ Function Test-SpfRecord
 			}
 		}
 		ElseIf ($token -Match "^[\+\-\?\~]?ip6:*") {
+			$ip6addr = $token -Replace '[\+\-\?\~]?ip6:' -Replace '/128'
 			If ($token -Match "/" -And -Not ($token -Like "*/128")) {
-				$ip6net = $token -Replace 'ip6:'
 				If ($token -Match "^\+?ip6:*") {
-					Write-GoodNews "${RecordType}: Accept mail from the IPv6 subnet $ip6net."
+					Write-GoodNews "${RecordType}: Accept mail from the IPv6 subnet $ip6addr."
 				}
 				ElseIf ($token -Like "-ip6:*") {
-					Write-GoodNews "${RecordType}: Reject mail from the IPv6 subnet $ip6net."
+					Write-GoodNews "${RecordType}: Reject mail from the IPv6 subnet $ip6addr."
 				}
 				ElseIf ($token -Like "~ip6:*") {
-					Write-BadPractice "${RecordType}: Accept but mark mail from the IPv6 subnet $ip6net."
+					Write-BadPractice "${RecordType}: Accept but mark mail from the IPv6 subnet $ip6addr."
 				}
 				ElseIf ($token -Like "?ip6:*") {
-					Write-BadPractice "${RecordType}: No opinion on mail from the IPv6 subnet $ip6net."
+					Write-BadPractice "${RecordType}: No opinion on mail from the IPv6 subnet $ip6addr."
 				}
 				Else {
 					Write-BadNews "${RecordType}: PermError while processing the IPv6 token $token."
 					Return
 				}
 			} Else {
-				$ip6addr = $token -Replace 'ip6:' -Replace '/128'
 				If ($token -Match "^\+?ip6:*") {
 					Write-GoodNews "${RecordType}: Accept mail from the IPv6 address $ip6addr."
 				}
@@ -1608,27 +1645,43 @@ Function Test-SpfRecord
 			$NextRecord = $token -Replace '^[\+\-\~\?]?include:',''
 
 			If ($token -Match "^\+?include:*") {
-				Write-GoodNews "${RecordType}: Accept mail that passes the SPF record at $nextRecord.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
+				Write-GoodNews "${RecordType}: Accept mail that passes the $RecordTypePrintable record at $nextRecord.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
 				If ($CountDnsLookups) {
-					Test-SpfRecord -DomainName $NextRecord -CountDnsLookups:$CountDnsLookups -DisableDnssecVerification:$DisableDnssecVerification -Recursions $Recursions -DnsLookups $DnsLookups
+					If ($RecordType -eq 'Sender ID') {
+						Test-SenderIdRecord -DomainName $NextRecord -CountDnsLookups:$CountDnsLookups -DisableDnssecVerification:$DisableDnssecVerification -Recursions $Recursions -DnsLookups $DnsLookups
+					} Else {
+						Test-SpfRecord -DomainName $NextRecord -CountDnsLookups:$CountDnsLookups -DisableDnssecVerification:$DisableDnssecVerification -Recursions $Recursions -DnsLookups $DnsLookups
+					}
 				}
 			}
 			ElseIf ($token -Like "-include:*") {
-				Write-GoodNews "${RecordType}: Reject mail that passes the SPF record at $NextRecord.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
+				Write-GoodNews "${RecordType}: Reject mail that passes the $RecordTypePrintable record at $NextRecord.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
 				If ($CountDnsLookups) {
-					Test-SpfRecord -DomainName $NextRecord -CountDnsLookups:$CountDnsLookups -DisableDnssecVerification:$DisableDnssecVerification -Recursions $Recursions -DnsLookups $DnsLookups
+					If ($RecordType -eq 'Sender ID') {
+						Test-SenderIdRecord -DomainName $NextRecord -CountDnsLookups:$CountDnsLookups -DisableDnssecVerification:$DisableDnssecVerification -Recursions $Recursions -DnsLookups $DnsLookups
+					} Else {
+						Test-SpfRecord -DomainName $NextRecord -CountDnsLookups:$CountDnsLookups -DisableDnssecVerification:$DisableDnssecVerification -Recursions $Recursions -DnsLookups $DnsLookups
+					}
 				}
 			}
 			ElseIf ($token -Like "~include:*") {
-				Write-BadPractice "${RecordType}: Accept but mark mail that passes the SPF record at $NextRecord.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
+				Write-BadPractice "${RecordType}: Accept but mark mail that passes the $RecordTypePrintable record at $NextRecord.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
 				If ($CountDnsLookups) {
-					Test-SpfRecord -DomainName $NextRecord -CountDnsLookups:$CountDnsLookups -DisableDnssecVerification:$DisableDnssecVerification -Recursions $Recursions -DnsLookups $DnsLookups
+					If ($RecordType -eq 'Sender ID') {
+						Test-SenderIdRecord -DomainName $NextRecord -CountDnsLookups:$CountDnsLookups -DisableDnssecVerification:$DisableDnssecVerification -Recursions $Recursions -DnsLookups $DnsLookups
+					} Else {
+						Test-SpfRecord -DomainName $NextRecord -CountDnsLookups:$CountDnsLookups -DisableDnssecVerification:$DisableDnssecVerification -Recursions $Recursions -DnsLookups $DnsLookups
+					}
 				}
 			}
 			ElseIf ($token -Like "?include:*") {
-				Write-BadPractice "${RecordType}: No opinion on mail that passes the SPF record at $NextRecord.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
+				Write-BadPractice "${RecordType}: No opinion on mail that passes the $RecordTypePrintable record at $NextRecord.$(Write-DnsLookups $DnsLookups -Enabled:$CountDnsLookups)"
 				If ($CountDnsLookups) {
-					Test-SpfRecord -DomainName $NextRecord -CountDnsLookups:$CountDnsLookups -DisableDnssecVerification:$DisableDnssecVerification -Recursions $Recursions -DnsLookups $DnsLookups
+					If ($RecordType -eq 'Sender ID') {
+						Test-SenderIdRecord -DomainName $NextRecord -CountDnsLookups:$CountDnsLookups -DisableDnssecVerification:$DisableDnssecVerification -Recursions $Recursions -DnsLookups $DnsLookups
+					} Else {
+						Test-SpfRecord -DomainName $NextRecord -CountDnsLookups:$CountDnsLookups -DisableDnssecVerification:$DisableDnssecVerification -Recursions $Recursions -DnsLookups $DnsLookups
+					}
 				}
 			}
 			Else {
@@ -1646,7 +1699,7 @@ Function Test-SpfRecord
 			} ElseIf ($token -Eq "-all") {
 				Write-GoodNews "${RecordType}: Reject all other mail."
 			} ElseIf ($token -Eq "~all") {
-				Write-BadPractice "${RecordType}: Accept but mark all other mail (this domain is likely testing SPF)."
+				Write-BadPractice "${RecordType}: Accept but mark all other mail (this domain is likely testing $RecordTypePrintable)."
 			} ElseIf ($token -Eq "?all") {
 				Write-BadPractice "${RecordType}: Do whatever with all other mail."
 			} Else {
@@ -1664,7 +1717,7 @@ Function Test-SpfRecord
 		{
 			$ExplanationRecord  = $token -Replace 'exp='
 			$ExplanationMessage = ((Invoke-GooglePublicDnsApi $ExplanationRecord 'TXT').Answer | Where-Object Type -eq 16).Data
-			Write-Informational "${RecordType}: Include this explanation with SPF failures: `"$ExplanationMessage`""
+			Write-Informational "${RecordType}: Include this explanation with $RecordTypePrintable failures: `"$ExplanationMessage`""
 		}
 		#endregion
 

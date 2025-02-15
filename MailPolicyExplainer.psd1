@@ -71,6 +71,7 @@ AliasesToExport = @(
 	'Test-MtaStsRecord',
 	'Test-MXRecords',
 	'Test-NullMXRecord',
+	'Test-SenderIdRecord',
 	'Test-TlsaRecord',
 	'Test-TlsaRecords'
 )

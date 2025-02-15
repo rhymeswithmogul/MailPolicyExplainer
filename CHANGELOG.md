@@ -1,5 +1,10 @@
 # MailPolicyExplainer Change Log
 
+## Version 1.4.2 (Saturday, February 15, 2025)
+- **FIX** Fixed a bug where Sender ID records in `include:` tokens would be parsed in addition to SPF records, when doing recursive SPF or Sender ID checks.
+- **FIX** Fixed bugs where the word "SPF" would be printed during Sender ID checks.
+- **FIX** Fixed a bug preventing the `Test-SenderIdRecords` alias from checking Sender ID records.  Instead, it would check SPF records.
+
 ## Version 1.4.1 (Wednesday, May 22, 2024)
 **FIX** DMARC `pct` tokens are now properly explained.  Thanks to [Jason Berry](https://github.com/skyblaster) for finding the bug and writing [the pull request](https://github.com/rhymeswithmogul/MailPolicyExplainer/pull/3)!
 
