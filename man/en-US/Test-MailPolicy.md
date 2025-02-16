@@ -14,7 +14,8 @@ Tests all email-related DNS records for a domain.
 
 ```
 Test-MailPolicy [-DomainName] <String> [-CountSpfDnsLookups] [-DkimSelectorsToCheck <String[]>]
- [-BimiSelectorsToCheck <String[]>] [-DisableDnssecVerification] [<CommonParameters>]
+ [-ExchangeOnlineDkim] [-BimiSelectorsToCheck <String[]>] [-DisableDnssecVerification]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -58,40 +59,10 @@ The names of one or more DKIM selectors.  If omitted, no DKIM checks will be don
 ```yaml
 Type: String[]
 Parameter Sets: (All)
-Aliases:
+Aliases: bimi
 
 Required: False
 Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -DkimSelectorsToCheck
-The names of one or more BIMI selectors.  If omitted, no BIMI checks will be done.
-
-```yaml
-Type: String[]
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -DomainName
-The domain name to test.  Be sure to include any applicable subdomains (i.e., "contoso.com" and "newsletters.contoso.com" are two different domains).
-
-```yaml
-Type: String
-Parameter Sets: (All)
-Aliases:
-
-Required: True
-Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -119,6 +90,53 @@ Disable DNSSEC validation.  This cmdlet will not request authenticated data from
 Type: SwitchParameter
 Parameter Sets: (All)
 Aliases: CD, DnssecCD, NoDnssec, DisableDnssec
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -DkimSelectorsToCheck
+The names of one or more BIMI selectors.  If omitted, no BIMI checks will be done.
+
+```yaml
+Type: String[]
+Parameter Sets: (All)
+Aliases: dkim
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -DomainName
+The domain name to test.  Be sure to include any applicable subdomains (i.e., "contoso.com" and "newsletters.contoso.com" are two different domains).
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: True
+Position: 0
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ExchangeOnlineDkim
+Check the DKIM selectors "selector1" and "selector2".  These are the two (and only two) used by Exchange Online.  You may also use the `-DkimSelectorsToCheck` parameter to check additional selectors.
+
+This is functionally equivalent to `-DkimSelectorsToCheck "selector1","selector2"`.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: ExchangeOnline, Microsoft365, Microsoft365Dkim, Office365, Office365Dkim
 
 Required: False
 Position: Named

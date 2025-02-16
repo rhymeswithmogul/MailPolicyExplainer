@@ -30,6 +30,21 @@ Fetches the DNSSEC-validated DMARC record for contoso.com.
 
 ## PARAMETERS
 
+### -DisableDnssecVerification
+Disable DNSSEC validation.  This cmdlet will not request authenticated data from the resolver;  thus, DNSSEC validation of resource records will not occur, nor will the user be informed about unauthenticated denial of existence of DNS records.  Using this switch is NOT RECOMMENDED for production use and should only be used for diagnostic and troubleshooting purposes only!
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: CD, DnssecCD, NoDnssec, DisableDnssec
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -InputObject
 The fully-qualified domain name that will be looked up.  You do not need to specify a trailing period.
 
@@ -56,21 +71,6 @@ Accepted values: A, AAAA, CNAME, MX, SPF, TLSA, TXT
 
 Required: False
 Position: 1
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -DisableDnssecVerification
-Disable DNSSEC validation.  This cmdlet will not request authenticated data from the resolver;  thus, DNSSEC validation of resource records will not occur, nor will the user be informed about unauthenticated denial of existence of DNS records.  Using this switch is NOT RECOMMENDED for production use and should only be used for diagnostic and troubleshooting purposes only!
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: CD, DnssecCD, NoDnssec, DisableDnssec
-
-Required: False
-Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

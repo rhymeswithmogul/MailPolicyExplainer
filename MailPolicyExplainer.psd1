@@ -24,7 +24,7 @@ with this program.  If not, see <https://www.gnu.org/licenses/>.
 RootModule = 'src/MailPolicyExplainer.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.4.2'
+ModuleVersion = '1.5.0'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Core', 'Desktop')
@@ -104,6 +104,7 @@ FileList = @(
 	'LICENSE.txt',
 	'MailPolicyExplainer.psd1',
 	'NEWS.md',
+	'ONEWS.md',
 	'README.md',
 	'SECURITY.md'
 )
@@ -122,7 +123,7 @@ PrivateData = @{
 			'MTA-STS', 'MX', 'TLSRPT', 'STARTTLS', 'domainkey', 'TLS', 'TLSA',
 			'ADSP',  'DNS', 'policy', 'SenderID', 'tester', 'Reporting', 'Test',
 			'Exchange', 'Office365', 'Google', 'Network', 'Cloud', 'security',
-			'audit', 'IPv4', 'IPv6', 'SMTP', 'RSA', 'Ed25519',
+			'audit', 'IPv4', 'IPv6', 'SMTP', 'RSA', 'Ed25519', 'ExchangeOnline',
 			'Windows', 'MacOS', 'Linux', 'PSEdition_Core', 'PSEdition_Desktop'
 		)
 

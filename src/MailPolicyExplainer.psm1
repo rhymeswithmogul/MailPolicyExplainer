@@ -844,8 +844,13 @@ Function Test-MailPolicy
 		[Alias('Recurse')]
 		[Switch] $CountSpfDnsLookups,
 
+		[Alias('dkim')]
 		[String[]] $DkimSelectorsToCheck,
 
+		[Alias('ExchangeOnline', 'Microsoft365', 'Microsoft365Dkim', 'Office365', 'Office365Dkim')]
+		[Switch] $ExchangeOnlineDkim,
+
+		[Alias('bimi')]
 		[String[]] $BimiSelectorsToCheck,
 
 		[Alias('CD', 'DnssecCD', 'NoDnssec', 'DisableDnssec')]
@@ -855,6 +860,15 @@ Function Test-MailPolicy
 	Write-Output "Analyzing email records for $DomainName"
 	Test-MXRecord $DomainName -DisableDnssecVerification:$DisableDnssecVerification
 	Test-SpfRecord $DomainName -Recurse:$CountSpfDnsLookups -DisableDnssecVerification:$DisableDnssecVerification
+	If ($ExchangeOnlineDkim) {
+		$x = @('selector1', 'selector2')
+		ForEach ($selector in $DkimSelectorsToCheck) {
+			If ($selector -ne 'selector1' -and $selector -ne 'selector2') {
+				$x += $selector
+			}
+		}
+		$DkimSelectorsToCheck = $x
+	}
 	If ($DkimSelectorsToCheck.Count -gt 0) {
 		$DkimSelectorsToCheck | ForEach-Object {
 			Test-DkimSelector $DomainName -Name $_ -DisableDnssecVerification:$DisableDnssecVerification
@@ -1335,8 +1349,8 @@ Function Test-SpfRecord
 	}
 
 	# Add indentation when doing recursive SPF lookups.
+	$RecordTypePrintable = $RecordType -Split '─' | Select-Object -Last 1
 	If ($CountDnsLookups) {
-		$RecordTypePrintable = $RecordType -Split '─' | Select-Object -Last 1
 		$RecordType = "$('├──' * $Recursions.Value)$RecordType"
 	}
 	#endregion
