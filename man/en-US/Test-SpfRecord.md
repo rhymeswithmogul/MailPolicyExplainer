@@ -13,8 +13,7 @@ Tests and explains a domain's SPF record.
 ## SYNTAX
 
 ```
-Test-SpfRecord [-DomainName] <String> [-CountDnsLookups] [-DisableDnssecVerification]
- [-Recursions <PSReference>] [-DnsLookups <PSReference>] [<CommonParameters>]
+Test-SpfRecord [-DomainName] <String> [-CountDnsLookups] [-DisableDnssecVerification] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -26,7 +25,7 @@ SPF provides a complementary authentication to DKIM, and is a requirement for im
 
 In the past, SPF records had their own DNS resource record type, also called "SPF".  SPF records of type SPF are now historic, and the DNS TXT record should be used.
 
-In addition, Microsoft briefly tried to create Sender ID, a very similar DNS record that started with "spf2.0".  That is historic and no longer in use.
+In addition, Microsoft briefly tried to create Sender ID, a very similar DNS record that started with "spf2.0".  That is historic and no longer in use.  However, it can still be tested by invoking this as `Test-SenderIdRecord`.
 
 ## EXAMPLES
 
@@ -44,22 +43,14 @@ PS C:\>  Test-SpfRecord lucernepublishing.com -CountDnsLookups
 
 Tests the SPF record for lucernepublishing.com, evaluating it recursively and counting how many additional DNS lookups are performed.  This resolves the DNS TXT record "lucernepublishing.com" and any other SPF records referenced by any "redirect" modifiers or "include" tokens.
 
-## PARAMETERS
-
-### -DomainName
-The domain name to test.  Be sure to include any applicable subdomains (i.e., "contoso.com" and "newsletters.contoso.com" are two different domains).
-
-```yaml
-Type: String
-Parameter Sets: (All)
-Aliases: Name
-
-Required: True
-Position: 0
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
+### Example 3
+```powershell
+PS C:\>  Test-SenderIdRecord woodgrovebank.com
 ```
+
+Tests the Sender ID records for woodgrovebank.com.  This resolves the DNS TXT record "woodgrovebank.com".
+
+## PARAMETERS
 
 ### -CountDnsLookups
 Specify this parameter to count how many DNS lookups are required to evaluate this SPF record, to make sure it isn't over the limit of ten additional lookups, after which point, SPF evaluators may choose to stop processing and return a PermError.  This switch will cause this cmdlet to operate recursively, and evaluate any SPF records found via the "redirect" modifier and the "include" token.
@@ -88,6 +79,21 @@ Aliases: CD, DnssecCD, NoDnssec, DisableDnssec
 
 Required: False
 Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -DomainName
+The domain name to test.  Be sure to include any applicable subdomains (i.e., "contoso.com" and "newsletters.contoso.com" are two different domains).
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases: Name
+
+Required: True
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

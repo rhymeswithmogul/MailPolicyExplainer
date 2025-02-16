@@ -43,6 +43,21 @@ Tests shop.fabrikam.com's DKIM selector named "receipts".  The DNS TXT record to
 
 ## PARAMETERS
 
+### -DisableDnssecVerification
+Disable DNSSEC validation.  This cmdlet will not request authenticated data from the resolver;  thus, DNSSEC validation of resource records will not occur, nor will the user be informed about unauthenticated denial of existence of DNS records.  Using this switch is NOT RECOMMENDED for production use and should only be used for diagnostic and troubleshooting purposes only!
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: CD, DnssecCD, NoDnssec, DisableDnssec
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -DomainName
 The domain name to test.  Be sure to include any applicable subdomains (i.e., "contoso.com" and "newsletters.contoso.com" are two different domains).
 
@@ -68,21 +83,6 @@ Aliases: Selector, SelectorName, KeyName
 
 Required: True
 Position: 1
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -DisableDnssecVerification
-Disable DNSSEC validation.  This cmdlet will not request authenticated data from the resolver;  thus, DNSSEC validation of resource records will not occur, nor will the user be informed about unauthenticated denial of existence of DNS records.  Using this switch is NOT RECOMMENDED for production use and should only be used for diagnostic and troubleshooting purposes only!
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: CD, DnssecCD, NoDnssec, DisableDnssec
-
-Required: False
-Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
