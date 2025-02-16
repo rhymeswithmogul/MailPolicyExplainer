@@ -16,3 +16,12 @@ Please note we have a code of conduct, please follow it in all your interactions
 All contributions should run equally well on Windows PowerShell 5.1 and all in-support versions of PowerShell 7 (LTS and non-LTS).  Please target the most current versions of each branch.
 
 All contributions should run equally well on Windows, macOS, Linux, and any other operating systems that PowerShell may target in the future.
+
+## This all sounds like too much.
+If you can't write code for me, that's perfectly fine.  Here are other ways to contribute.
+
+- Open a GitHub issue if you notice something is broken.
+- Open a GitHub issue if you have a cool idea to improve things.
+- Write documentation!
+- Tell a friend how awesome this module is, and make them install and start using this module.
+- [Buy me a coffee](https://buymeacoffee.com/colincogle).  I can't promise I'll use the money to buy a coffee, particularly if it's after 5:00 PM local time, but I'll appreciate it all the same! 🍺😉

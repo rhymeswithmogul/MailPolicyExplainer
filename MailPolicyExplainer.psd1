@@ -101,12 +101,13 @@ FileList = @(
 	'CODE_OF_CONDUCT.md',
 	'CONTRIBUTING.md',
 	'INSTALL.md',
-	'LICENSE.txt',
+	'LICENSE.md',
 	'MailPolicyExplainer.psd1',
 	'NEWS.md',
 	'ONEWS.md',
 	'README.md',
-	'SECURITY.md'
+	'SECURITY.md',
+	'THANKS.md'
 )
 
 # Private data to pass to the module specified in RootModule/ModuleToProcess.
@@ -122,8 +123,9 @@ PrivateData = @{
 			'email', 'mail', 'SPF', 'DKIM', 'DMARC', 'BIMI', 'DNSSEC', 'DANE',
 			'MTA-STS', 'MX', 'TLSRPT', 'STARTTLS', 'domainkey', 'TLS', 'TLSA',
 			'ADSP',  'DNS', 'policy', 'SenderID', 'tester', 'Reporting', 'Test',
-			'Exchange', 'Office365', 'Google', 'Network', 'Cloud', 'security',
-			'audit', 'IPv4', 'IPv6', 'SMTP', 'RSA', 'Ed25519', 'ExchangeOnline',
+			'Exchange', 'ExchangeOnline', 'ExO', 'Microsoft365', 'Office365',
+			'Google', 'Network', 'Cloud', 'security', 'teaching', 'ELI5',
+			'audit', 'IPv4', 'IPv6', 'SMTP', 'RSA', 'Ed25519', 'DomainKeys',
 			'Windows', 'MacOS', 'Linux', 'PSEdition_Core', 'PSEdition_Desktop'
 		)
 
@@ -131,7 +133,9 @@ PrivateData = @{
 		ProjectUri = 'https://github.com/rhymeswithmogul/MailPolicyExplainer'
 		IconUri = 'https://raw.githubusercontent.com/rhymeswithmogul/MailPolicyExplainer/main/icon/PSGallery.png'
 
-		ReleaseNotes = 'Fixes a bug where DMARC "pct" tokens were not being explained.'
+		ReleaseNotes = '- Add the `Test-MailPolicy -ExchangeOnline` parameter for quick testing of selector1 and selector2.
+- Fix several bugs related to Sender ID checks.
+- Generic module cleanup.'
 	}
 }
 
