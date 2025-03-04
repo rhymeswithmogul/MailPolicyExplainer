@@ -41,21 +41,6 @@ Copy-Item -Path '*' -Destination $DestinationPath -Recurse -Exclude @(
 )
 Push-Location -Path $DestinationPath
 #endregion
-I 
-#region Sign all script files.
-# This portion of the script signs all files with my code signing certificate.
-# Since the command's default parameters are defined in my shell, and my private
-# key requires protection, there are no secrets to hide in this script.  This
-# will silently fail on all other computers except mine.
-Write-Output "Signing all script files"
-Get-ChildItem -Recurse -Include @('*.ps1','*.ps?1') | ForEach-Object {
-	Set-AuthenticodeSignature $_ | Format-Table -AutoSize
-}
-
-Write-Output "Generating catalog"
-New-FileCatalog -Path . -CatalogFilePath MailPolicyExplainer.cat -CatalogVersion 2.0
-Set-AuthenticodeSignature 'MailPolicyExplainer.cat'
-#endregion
 
 #region Invoke PSScriptAnalyzer.
 Write-Output "Calling PSScriptAnalyzer with Gallery settings"
@@ -70,6 +55,21 @@ If ($analysis.Count -gt 0)
 #region Run Pester tests.
 Write-Output "Running Pester tests"
 Invoke-Pester
+#endregion
+
+#region Sign all script files.
+# This portion of the script signs all files with my code signing certificate.
+# Since the command's default parameters are defined in my shell, and my private
+# key requires protection, there are no secrets to hide in this script.  This
+# will silently fail on all other computers except mine.
+Write-Output "Signing all script files"
+Get-ChildItem -Recurse -Include @('*.ps1','*.ps?1') | ForEach-Object {
+	Set-AuthenticodeSignature $_ | Format-Table -AutoSize
+}
+
+Write-Output "Generating catalog"
+New-FileCatalog -Path . -CatalogFilePath MailPolicyExplainer.cat -CatalogVersion 2.0
+Set-AuthenticodeSignature 'MailPolicyExplainer.cat'
 #endregion
 
 Start-Process -FilePath 'C:\Windows\Explorer.exe' -ArgumentList $DestinationPath

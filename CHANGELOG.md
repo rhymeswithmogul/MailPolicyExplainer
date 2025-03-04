@@ -1,6 +1,10 @@
 # MailPolicyExplainer Change Log
 
-## Version 1.5 (Saturday, February 15, 2025)
+## Version 1.5.1 (Monday, March 3, 2025)
+- **FIX** Fixed an error in SPF processing where an `include:` statement resolving to something non-existent could cause duplicate or missing error messages, particularly when passing the 10 DNS lookup limit.  Thanks yet again, [Jason Berry](https://github.com/skyblaster)!
+- Code cleanup, fixed some little PSScriptAnalyzer complaints.
+
+## Version 1.5.0 (Saturday, February 15, 2025)
 - **NEW** The new parameter `Test-MailPolicy -ExchangeOnlineDkim` is now a synonym for `Test-MailPolicy -DkimSelectorsToCheck selector1,selector2`.  Additional DKIM selectors can still be specified like always.
 - **FIX** Fixed a bug where Sender ID records in `include:` tokens would be parsed in addition to SPF records, when doing recursive SPF or Sender ID checks.
 - **FIX** Fixed bugs where the word "SPF" would be printed during Sender ID checks.

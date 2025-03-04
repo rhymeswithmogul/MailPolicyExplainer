@@ -24,7 +24,7 @@ with this program.  If not, see <https://www.gnu.org/licenses/>.
 RootModule = 'src/MailPolicyExplainer.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.5.0'
+ModuleVersion = '1.5.1'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Core', 'Desktop')
@@ -115,7 +115,7 @@ FileList = @(
 # by PowerShell.
 PrivateData = @{
 	PSData = @{
-		#Prerelease = 'git'
+		#Prerelease = 'dev'
 
 		# Tags applied to this module.
 		# These help with module discovery in online galleries.
@@ -133,9 +133,7 @@ PrivateData = @{
 		ProjectUri = 'https://github.com/rhymeswithmogul/MailPolicyExplainer'
 		IconUri = 'https://raw.githubusercontent.com/rhymeswithmogul/MailPolicyExplainer/main/icon/PSGallery.png'
 
-		ReleaseNotes = '- Add the `Test-MailPolicy -ExchangeOnline` parameter for quick testing of selector1 and selector2.
-- Fix several bugs related to Sender ID checks.
-- Generic module cleanup.'
+		ReleaseNotes = 'Fixed an error in SPF resolution when include: tokens do not resolve to anything.'
 	}
 }
 
